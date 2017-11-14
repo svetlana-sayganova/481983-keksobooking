@@ -1,0 +1,26 @@
+{
+  "name": "keksobooking",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Личный проект «Кексобукинг» от HTML Academy",
+  "author": "Светлана Сайганова",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:htmlacademy-javascript/481983-keksobooking.git"
+  },
+  "bugs": {
+    "url": "https://github.com/htmlacademy-javascript/481983-keksobooking/issues"
+  },
+  "devDependencies": {
+    "eslint": "4.2.0",
+    "eslint-config-htmlacademy": "0.3.x"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "scripts": {
+    "test": "eslint js/"
+  },
+  "engines": {
+    "node": "^6.10"
+  }
+}
