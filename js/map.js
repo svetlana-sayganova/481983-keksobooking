@@ -66,7 +66,7 @@ var fragment = document.createDocumentFragment();
  * @return {number}     Случайное число из интервала [min, max].
  */
 var getRandomNumber = function (min, max) {
-  return Math.round(Math.random() * (max - min) + min);
+  return Math.floor(Math.random() * (max + 1 - min)) + min;
 };
 
 /**
