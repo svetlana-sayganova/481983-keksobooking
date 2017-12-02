@@ -73,8 +73,9 @@ var getRandomNumber = function (min, max) {
  * getRandomElement - Возвращает случайный элемент массива.
  *
  * @param  {Array} array Массив, из которого возвращается элемент.
- * @param  {boolean} key true - выбранный элемент удаляется из массива, false - не удаляется.
- * @return {type}        Элемент массива.
+ * @param  {boolean} key Способ, которым возвращается элемент.
+ * True - выбранный элемент удаляется из массива, false - не удаляется.
+ * @return {*}           Элемент массива.
  */
 var getRandomElement = function (array, key) {
   var randomElementIndex = getRandomNumber(0, array.length - 1);
@@ -158,7 +159,7 @@ var createAd = function () {
 /**
  * createAds - Создает массив объектов Ad.
  *
- * @return {Array}  Массив объектов Wizard.
+ * @return {Array}  Массив объектов Ad.
  */
 var createAds = function () {
   var adArray = [];
@@ -201,7 +202,7 @@ var renderMapCard = function (ad) {
 
   mapCardElement.querySelector('h3').textContent = ad.offer.title;
   mapCardElement.querySelector('small').textContent = ad.offer.address;
-  mapCardElement.querySelector('.popup__price').innerHTML = ad.offer.price + ' &#x20bd;/ночь';
+  mapCardElement.querySelector('.popup__price').textContent = ad.offer.price + ' \u20BD/ночь';
   mapCardElement.querySelector('h4').textContent = TYPES[ad.offer.type];
   paragraphs[2].textContent = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
   paragraphs[3].textContent = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
