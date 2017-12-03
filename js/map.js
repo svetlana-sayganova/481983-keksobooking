@@ -47,8 +47,12 @@ var PIN_SIZE = {
   Y: 40
 };
 
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
+
 var copiedTitles = TITLES.slice();
 
+var ads;
 var adIndex = 0;
 
 var map = document.querySelector('.map');
@@ -57,6 +61,15 @@ var mapCardTemplate = document.querySelector('template').content.querySelector('
 var mapPins = map.querySelector('.map__pins');
 
 var fragment = document.createDocumentFragment();
+
+var form = document.querySelector('.notice__form');
+var formElements = form.querySelectorAll('fieldset');
+var mainPin = map.querySelector('.map__pin--main');
+
+var pins;
+var popup;
+var popupClose;
+var currentTarget;
 
 /**
  * getRandomNumber - Возвращает целое случайное число из интервала [min, max].
@@ -219,25 +232,132 @@ var renderMapCard = function (ad) {
   return mapCardElement;
 };
 
-// Показывает блок '.map'
-map.classList.remove('map--faded');
-
 // Создает объявления
-var ads = createAds();
+ads = createAds();
+
+/**
+ * showMap - показывает элементы 'Метка объявления на карте'
+ * и снимает блокировку с формы
+ *
+ */
+var showMap = function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('notice__form--disabled');
+
+  for (var i = 0; i < formElements.length; i++) {
+    formElements[i].disabled = false;
+  }
+
+  for (i = 0; i < pins.length; i++) {
+    pins[i].classList.remove('hidden');
+  }
+
+  // назначает обработчик showPopups на элемент 'Карта',
+  // в котором расположены элементы 'Метка объявления на карте'
+  mapPins.addEventListener('click', showPopups);
+};
+
+/**
+ * showPopups - Подсвечивает активный элемент 'Метка объявления на карте'
+ * и показвает соответсвущий ему элемент 'Карточка объявления на карте'.
+ *
+ * @param  {Object} evt Событие Event.
+ */
+var showPopups = function (evt) {
+  // переменной target присваивает ближайший родительский элемент 'Метка объявления на карте'
+  // исходнго элемента, на котором произошло событие
+  var target = evt.target.closest('.map__pin');
+
+  if (target && target !== mainPin) {
+    // удаляет подсветку с предыдущего активного элемента 'Метка объявления на карте'
+    // и соответствующий ему элемент 'Карточка объявления на карте'
+    if (currentTarget) {
+      currentTarget.classList.remove('map__pin--active');
+      popup.remove();
+    }
+    // добавляет подсветку элементу 'Метка объявления на карте'
+    target.classList.add('map__pin--active');
+    // переменной currentTarget присваивает элемент 'Метка объявления на карте',
+    // находящийся в активном состоянии
+    currentTarget = target;
+
+    // по атрибуту src дочернего элемента ищет соответствущее объявление из массива ads
+    // и создает элемент 'Карточка объявления на карте'
+    var src = currentTarget.children[0].getAttribute('src');
+    for (var i = 0; i < ads.length; i++) {
+      if (src === ads[i].author.avatar) {
+        popup = renderMapCard(ads[i]);
+        map.appendChild(popup);
+      }
+    }
+    // ищет кнопку закрытия элеманта 'Карточка объявления на карте'
+    // и назначает ему обработчик closePopup (закрытие элемента по клику)
+    popupClose = map.querySelector('.popup__close');
+    popupClose.addEventListener('click', closePopup);
+
+    // назначает обработчик onPopupEscPress (закрытие элемента по нажатию на клавишу Esc)
+    document.addEventListener('keydown', onPopupEscPress);
+  }
+};
+
+/**
+ * closePopup - Снимает подсветку с активного элемента 'Метка объявления на карте'
+ * и скрывает соответствущий ему элемент 'Карточка объявления на карте'.
+ *
+ */
+var closePopup = function () {
+  currentTarget.classList.remove('map__pin--active');
+  popup.classList.add('hidden');
+  document.removeEventListener('keydown', onPopupEscPress);
+};
+
+/**
+ * onPopupEscPress - Закрывает элемент 'Карточка объявления на карте'
+ * при нажатии клавиши Esc.
+ *
+ * @param  {Object} evt Событие Event.
+ */
+var onPopupEscPress = function (evt) {
+  if (evt.keyCode === ESC_KEYCODE) {
+    closePopup();
+  }
+};
+
+/**
+ * onMainPinEnterPress - запускает функцию showMap при нажатии клавиши Enter
+ * на элементе 'Главный пин'
+ *
+ * @param  {Object} evt Событие Event.
+ */
+var onMainPinEnterPress = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    showMap();
+  }
+};
+
+// Делает все поля формы недоступными в момент открытия страницы
+for (var i = 0; i < formElements.length; i++) {
+  formElements[i].disabled = true;
+}
 
 // Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
-for (var i = 0; i < ads.length; i++) {
+for (i = 0; i < ads.length; i++) {
   fragment.appendChild(renderMapPin(ads[i]));
 }
 
 // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
 mapPins.appendChild(fragment);
 
-// Создает новый фрагмент 'fragment'
-fragment = document.createDocumentFragment();
+// Ищет все элементы 'Метка объявления на карте'
+pins = mapPins.querySelectorAll('.map__pin');
 
-// Создает DOM-элемент 'Карточка объявления на карте' и размещает во фрагменте 'fragment'
-fragment.appendChild(renderMapCard(ads[0]));
+// Скрывает все DOM-элементы 'Метка объявления на карте' в момент открытия страницы (кроме mainPin)
+for (i = 0; i < pins.length; i++) {
+  if (pins[i] !== mainPin) {
+    pins[i].classList.add('hidden');
+  }
+}
 
-// Добавляет DOM-элемент 'Карточка объявления на карте' в блок '.map'
-map.appendChild(fragment);
+// Добавляет обработчики на элемент 'Главный пин'
+mainPin.addEventListener('mouseup', showMap);
+mainPin.addEventListener('keydown', onMainPinEnterPress);
