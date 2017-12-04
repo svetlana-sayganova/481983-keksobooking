@@ -298,6 +298,10 @@ var showPopups = function (evt) {
     // назначает обработчик onPopupEscPress (закрытие элемента по нажатию на клавишу Esc)
     document.addEventListener('keydown', onPopupEscPress);
   }
+  // если клик произошел по элементу 'Главный пин', то закрывает открытый попап
+  if (popup && target === mainPin) {
+    closePopup();
+  }
 };
 
 /**
