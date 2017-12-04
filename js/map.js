@@ -66,7 +66,6 @@ var form = document.querySelector('.notice__form');
 var formElements = form.querySelectorAll('fieldset');
 var mainPin = map.querySelector('.map__pin--main');
 
-var pins;
 var popup;
 var popupClose;
 var currentTarget;
@@ -236,25 +235,25 @@ var renderMapCard = function (ad) {
   return mapCardElement;
 };
 
-// Создает объявления
-ads = createAds();
-
 /**
- * showMap - показывает элементы 'Метка объявления на карте'
+ * showMap - создает и показывает элементы 'Метка объявления на карте'
  * и снимает блокировку с формы
  *
  */
 var showMap = function () {
+  // Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
+  for (var i = 0; i < ads.length; i++) {
+    fragment.appendChild(renderMapPin(ads[i], i));
+  }
+
+  // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
+  mapPins.appendChild(fragment);
+
   map.classList.remove('map--faded');
   form.classList.remove('notice__form--disabled');
 
-  for (var i = 0; i < formElements.length; i++) {
-    formElements[i].disabled = false;
-  }
-
-  for (i = 0; i < pins.length; i++) {
-    pins[i].classList.remove('hidden');
-  }
+  // делает все поля формы доступными
+  changeAccessibility(formElements);
 
   // назначает обработчик showPopups на элемент 'Карта',
   // в котором расположены элементы 'Метка объявления на карте'
@@ -339,28 +338,25 @@ var onMainPinEnterPress = function (evt) {
   }
 };
 
+/**
+ * changeAccessibility - Меняет доступность элементов формы на противоположное значение.
+ *
+ * @param  {Array} array Массив элементов
+ */
+var changeAccessibility = function (array) {
+  array.forEach(function (elem) {
+    elem.disabled = (elem.disabled) ? false : true;
+  });
+};
+
+// Создает объявления
+ads = createAds();
+
+// Формирует из DOM-коллекции массив
+formElements = Array.prototype.slice.call(formElements);
+
 // Делает все поля формы недоступными в момент открытия страницы
-for (var i = 0; i < formElements.length; i++) {
-  formElements[i].disabled = true;
-}
-
-// Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
-for (i = 0; i < ads.length; i++) {
-  fragment.appendChild(renderMapPin(ads[i], i));
-}
-
-// Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
-mapPins.appendChild(fragment);
-
-// Ищет все элементы 'Метка объявления на карте'
-pins = mapPins.querySelectorAll('.map__pin');
-
-// Скрывает все DOM-элементы 'Метка объявления на карте' в момент открытия страницы (кроме mainPin)
-for (i = 0; i < pins.length; i++) {
-  if (pins[i] !== mainPin) {
-    pins[i].classList.add('hidden');
-  }
-}
+changeAccessibility(formElements);
 
 // Добавляет обработчики на элемент 'Главный пин'
 mainPin.addEventListener('mouseup', showMap);
