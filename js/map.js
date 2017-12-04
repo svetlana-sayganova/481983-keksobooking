@@ -185,18 +185,22 @@ var createAds = function () {
 };
 
 /**
- * renderMapCard - Возвращает DOM-элемент 'Метка объявления на карте',
+ * renderMapPin - Возвращает DOM-элемент 'Метка объявления на карте',
  * созданный на основе шаблона с заданными свойствами из объекта Ad.
  *
- * @param  {Object} ad Объект Ad.
- * @return {Object}    DOM-элемент 'Метка объявления на карте' с заданными свойствами.
+ * @param  {Object} ad        Объект Ad.
+ * @param  {number} pinNumber Порядковый номер DOM-элемента 'Метка объявления на карте'
+ * @return {Object}           DOM-элемент 'Метка объявления на карте' с заданными свойствами.
  */
-var renderMapPin = function (ad) {
+var renderMapPin = function (ad, pinNumber) {
   var mapPinElement = mapPinTemplate.cloneNode(true);
 
   mapPinElement.querySelector('img').src = ad.author.avatar;
   mapPinElement.style.left = ad.location.x - PIN_SIZE.X / 2 + 'px';
   mapPinElement.style.top = ad.location.y + PIN_SIZE.Y + 'px';
+  // Присваивает порядковый номер элементу (для получения связи с соответствущим
+  // объявлением в массиве Ads)
+  mapPinElement.number = pinNumber;
 
   return mapPinElement;
 };
@@ -281,15 +285,11 @@ var showPopups = function (evt) {
     // находящийся в активном состоянии
     currentTarget = target;
 
-    // по атрибуту src дочернего элемента ищет соответствущее объявление из массива ads
-    // и создает элемент 'Карточка объявления на карте'
-    var src = currentTarget.children[0].getAttribute('src');
-    for (var i = 0; i < ads.length; i++) {
-      if (src === ads[i].author.avatar) {
-        popup = renderMapCard(ads[i]);
-        map.appendChild(popup);
-      }
-    }
+    // по номеру активного элемента создает соответствующий элемент
+    // 'Карточка объявления на карте' и размещает на карте
+    popup = renderMapCard(ads[currentTarget.number]);
+    map.appendChild(popup);
+
     // ищет кнопку закрытия элеманта 'Карточка объявления на карте'
     // и назначает ему обработчик closePopup (закрытие элемента по клику)
     popupClose = map.querySelector('.popup__close');
@@ -342,7 +342,7 @@ for (var i = 0; i < formElements.length; i++) {
 
 // Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
 for (i = 0; i < ads.length; i++) {
-  fragment.appendChild(renderMapPin(ads[i]));
+  fragment.appendChild(renderMapPin(ads[i], i));
 }
 
 // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
