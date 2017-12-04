@@ -258,6 +258,10 @@ var showMap = function () {
   // назначает обработчик showPopups на элемент 'Карта',
   // в котором расположены элементы 'Метка объявления на карте'
   mapPins.addEventListener('click', showPopups);
+
+  // удадаляет обработчики с элемента 'Главный пин'
+  mainPin.removeEventListener('mouseup', showMap);
+  mainPin.removeEventListener('keydown', onMainPinEnterPress);
 };
 
 /**
