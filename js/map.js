@@ -50,6 +50,13 @@ var PIN_SIZE = {
 var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
 
+var minPrices = {
+  'flat': 1000,
+  'bungalo': 0,
+  'house': 5000,
+  'palace': 10000
+};
+
 var copiedTitles = TITLES.slice();
 
 var ads;
@@ -59,12 +66,19 @@ var map = document.querySelector('.map');
 var mapPinTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var mapCardTemplate = document.querySelector('template').content.querySelector('.map__card');
 var mapPins = map.querySelector('.map__pins');
+var mainPin = map.querySelector('.map__pin--main');
 
 var fragment = document.createDocumentFragment();
 
 var form = document.querySelector('.notice__form');
-var formElements = form.querySelectorAll('fieldset');
-var mainPin = map.querySelector('.map__pin--main');
+var fieldsets = form.querySelectorAll('fieldset');
+var checkinSelect = form.querySelector('#timein');
+var checkoutSelect = form.querySelector('#timeout');
+var typeSelect = form.querySelector('#type');
+var priceInput = form.querySelector('#price');
+var roomsSelect = form.querySelector('#room_number');
+var guestsSelect = form.querySelector('#capacity');
+var currentValue;
 
 var popup;
 var popupClose;
@@ -253,7 +267,7 @@ var showMap = function () {
   form.classList.remove('notice__form--disabled');
 
   // делает все поля формы доступными
-  changeAccessibility(formElements);
+  changeAccessibility(fieldsets);
 
   // назначает обработчик showPopups на элемент 'Карта',
   // в котором расположены элементы 'Метка объявления на карте'
@@ -357,11 +371,38 @@ var changeAccessibility = function (array) {
 ads = createAds();
 
 // Формирует из DOM-коллекции массив
-formElements = Array.prototype.slice.call(formElements);
+fieldsets = Array.prototype.slice.call(fieldsets);
 
 // Делает все поля формы недоступными в момент открытия страницы
-changeAccessibility(formElements);
+changeAccessibility(fieldsets);
 
 // Добавляет обработчики на элемент 'Главный пин'
 mainPin.addEventListener('mouseup', showMap);
 mainPin.addEventListener('keydown', onMainPinEnterPress);
+
+// Синхронизирует время заезда и время выезда
+checkinSelect.addEventListener('change', function () {
+  checkoutSelect.options[checkinSelect.selectedIndex].selected = true;
+});
+
+checkoutSelect.addEventListener('change', function () {
+  checkinSelect.options[checkoutSelect.selectedIndex].selected = true;
+});
+
+// Устанавливает минимальнную стоимость жилья в зависимости от типа
+typeSelect.addEventListener('change', function () {
+  priceInput.min = minPrices[typeSelect.value];
+});
+
+// В зависимости от количства комнат блокирует недоступное для размещения
+// количество гостей
+roomsSelect.addEventListener('change', function () {
+  guestsSelect.value = (roomsSelect.value === '100') ? '0' : roomsSelect.value;
+  currentValue = guestsSelect.value;
+
+  for (var i = 0; i < guestsSelect.options.length; i++) {
+    guestsSelect.options[i].disabled = (currentValue === '0') ?
+      (guestsSelect.options[i].value !== '0') :
+      (guestsSelect.options[i].value > currentValue || guestsSelect.options[i].value === '0');
+  }
+});
