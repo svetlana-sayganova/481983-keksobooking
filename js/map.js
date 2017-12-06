@@ -72,6 +72,7 @@ var fragment = document.createDocumentFragment();
 
 var form = document.querySelector('.notice__form');
 var fieldsets = form.querySelectorAll('fieldset');
+var titleInput = form.querySelector('#title');
 var checkinSelect = form.querySelector('#timein');
 var checkoutSelect = form.querySelector('#timeout');
 var typeSelect = form.querySelector('#type');
@@ -420,7 +421,6 @@ var syncGuestsWithRooms = function () {
 
 // Синхронизирует необходимые значия до взаимодействия с формой
 syncTimes(checkinSelect, checkoutSelect);
-syncTimes(checkoutSelect, checkinSelect);
 syncTypeWithPrice();
 syncGuestsWithRooms();
 
@@ -438,3 +438,38 @@ typeSelect.addEventListener('change', syncTypeWithPrice);
 // В зависимости от количства комнат блокирует недоступное для размещения
 // количество гостей
 roomsSelect.addEventListener('change', syncGuestsWithRooms);
+
+// Выделяет неверно заполненные поля красной рамкой
+form.addEventListener('invalid', function (evt) {
+  evt.target.style.outline = '2px solid red';
+}, true);
+
+// Выводит сообщение при неправильно заполненном заголовке
+titleInput.addEventListener('invalid', function () {
+  var inputError;
+  if (titleInput.validity.tooShort) {
+    inputError = 'Заголовок должен состоять минимум из 30 символов';
+  } else if (titleInput.validity.tooLong) {
+    inputError = 'Заголовок не должен превышать 100 символов';
+  } else if (titleInput.validity.valueMissing) {
+    inputError = 'Поле обязательно для заполнения';
+  } else {
+    inputError = '';
+  }
+  titleInput.setCustomValidity(inputError);
+});
+
+// Выводит сообщение при неправильно заполненной цене
+priceInput.addEventListener('invalid', function () {
+  var inputError;
+  if (priceInput.validity.rangeUnderflow) {
+    inputError = 'Цена для данного типа жилья не может быть менее ' + minPrices[typeSelect.value] + ' p.';
+  } else if (priceInput.validity.rangeOverflow) {
+    inputError = 'Цена не может быть более 1000000 р.';
+  } else if (priceInput.validity.valueMissing) {
+    inputError = 'Поле обязательно для заполнения';
+  } else {
+    inputError = '';
+  }
+  priceInput.setCustomValidity(inputError);
+});
