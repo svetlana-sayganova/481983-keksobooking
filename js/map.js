@@ -380,23 +380,34 @@ changeAccessibility(fieldsets);
 mainPin.addEventListener('mouseup', showMap);
 mainPin.addEventListener('keydown', onMainPinEnterPress);
 
-// Синхронизирует время заезда и время выезда
-checkinSelect.addEventListener('change', function () {
-  checkoutSelect.options[checkinSelect.selectedIndex].selected = true;
-});
+// ---------Задание 14: доверяй, но проверяй---------
 
-checkoutSelect.addEventListener('change', function () {
-  checkinSelect.options[checkoutSelect.selectedIndex].selected = true;
-});
 
-// Устанавливает минимальнную стоимость жилья в зависимости от типа
-typeSelect.addEventListener('change', function () {
+/**
+ * syncTimes - Синхронизирует время заезда и время выезда путем выбора опции
+ * синхронизиуемого списка того же индекса, что и у основного списка.
+ *
+ * @param  {Object} times1 select -- основной список.
+ * @param  {Object} times2 select -- синхронизируемый список.
+ */
+var syncTimes = function (times1, times2) {
+  times2.options[times1.selectedIndex].selected = true;
+};
+
+/**
+ * syncTypeWithPrice - Устанавливает минимальнную стоимость жилья в зависимости от типа.
+ *
+ */
+var syncTypeWithPrice = function () {
   priceInput.min = minPrices[typeSelect.value];
-});
+};
 
-// В зависимости от количства комнат блокирует недоступное для размещения
-// количество гостей
-roomsSelect.addEventListener('change', function () {
+/**
+ * syncGuestsWithRooms - В зависимости от количства комнат блокирует недоступное для размещения
+ * количество гостей.
+ *
+ */
+var syncGuestsWithRooms = function () {
   guestsSelect.value = (roomsSelect.value === '100') ? '0' : roomsSelect.value;
   currentValue = guestsSelect.value;
 
@@ -405,4 +416,25 @@ roomsSelect.addEventListener('change', function () {
       (guestsSelect.options[i].value !== '0') :
       (guestsSelect.options[i].value > currentValue || guestsSelect.options[i].value === '0');
   }
+};
+
+// Синхронизирует необходимые значия до взаимодействия с формой
+syncTimes(checkinSelect, checkoutSelect);
+syncTimes(checkoutSelect, checkinSelect);
+syncTypeWithPrice();
+syncGuestsWithRooms();
+
+// Синхронизирует время заезда и время выезда
+checkinSelect.addEventListener('change', function () {
+  syncTimes(checkinSelect, checkoutSelect);
 });
+checkoutSelect.addEventListener('change', function () {
+  syncTimes(checkoutSelect, checkinSelect);
+});
+
+// Устанавливает минимальнную стоимость жилья в зависимости от типа
+typeSelect.addEventListener('change', syncTypeWithPrice);
+
+// В зависимости от количства комнат блокирует недоступное для размещения
+// количество гостей
+roomsSelect.addEventListener('change', syncGuestsWithRooms);
