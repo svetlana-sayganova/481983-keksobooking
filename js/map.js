@@ -100,16 +100,16 @@
   /**
    * getRandomElement - Возвращает случайный элемент массива.
    *
-   * @param  {Array} array Массив, из которого возвращается элемент.
-   * @param  {boolean} key Способ, которым возвращается элемент.
+   * @param  {Array}   array      Массив, из которого возвращается элемент.
+   * @param  {boolean} needRemove Способ, которым возвращается элемент.
    * True - выбранный элемент удаляется из массива, false - не удаляется.
-   * @return {*}           Элемент массива.
+   * @return {*}                  Элемент массива.
    */
-  var getRandomElement = function (array, key) {
+  var getRandomElement = function (array, needRemove) {
     var randomElementIndex = getRandomNumber(0, array.length - 1);
     var randomElement = array[randomElementIndex];
 
-    if (key) {
+    if (needRemove) {
       array.splice(randomElementIndex, 1);
     }
 
@@ -124,16 +124,16 @@
    * @return {Array}       Сформированный массив.
    */
   var getRandomArray = function (array) {
-    var randomArray = [];
+    var result = [];
     var randomLength = getRandomNumber(1, array.length);
-    var copiedArray = array.slice();
+    var clone = array.slice();
 
     for (var i = 0; i < randomLength; i++) {
-      var randomArrayElement = getRandomElement(copiedArray, true);
-      randomArray.push(randomArrayElement);
+      var randomElement = getRandomElement(clone, true);
+      result.push(randomElement);
     }
 
-    return randomArray;
+    return result;
   };
 
   /**
@@ -200,14 +200,14 @@
   };
 
   /**
-   * renderMapPin - Возвращает DOM-элемент 'Метка объявления на карте',
+   * renderPin - Возвращает DOM-элемент 'Метка объявления на карте',
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
    * @param  {Object} ad        Объект Ad.
    * @param  {number} pinNumber Порядковый номер DOM-элемента 'Метка объявления на карте'
    * @return {Object}           DOM-элемент 'Метка объявления на карте' с заданными свойствами.
    */
-  var renderMapPin = function (ad, pinNumber) {
+  var renderPin = function (ad, pinNumber) {
     var mapPinElement = mapPinTemplate.cloneNode(true);
 
     mapPinElement.querySelector('img').src = ad.author.avatar;
@@ -221,13 +221,13 @@
   };
 
   /**
-   * renderMapCard - Возвращает DOM-элемент 'Карточка объявления на карте',
+   * renderCard - Возвращает DOM-элемент 'Карточка объявления на карте',
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
    * @param  {Object} ad Объект Ad.
    * @return {Object}    DOM-элемент 'Карточка объявления на карте' с заданными свойствами.
    */
-  var renderMapCard = function (ad) {
+  var renderCard = function (ad) {
     var mapCardElement = mapCardTemplate.cloneNode(true);
     var paragraphs = mapCardElement.querySelectorAll('p');
     var featureList = mapCardElement.querySelector('.popup__features');
@@ -259,7 +259,7 @@
   var showMap = function () {
     // Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
     for (var i = 0; i < ads.length; i++) {
-      fragment.appendChild(renderMapPin(ads[i], i));
+      fragment.appendChild(renderPin(ads[i], i));
     }
 
     // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
@@ -306,7 +306,7 @@
 
       // по номеру активного элемента создает соответствующий элемент
       // 'Карточка объявления на карте' и размещает на карте
-      popup = renderMapCard(ads[currentTarget.number]);
+      popup = renderCard(ads[currentTarget.number]);
       map.appendChild(popup);
 
       // ищет кнопку закрытия элеманта 'Карточка объявления на карте'
