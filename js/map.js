@@ -481,6 +481,18 @@
     titleInput.setCustomValidity(inputError);
   });
 
+  // Убирает выделение при фокусе
+  titleInput.addEventListener('focus', function () {
+    titleInput.style.outline = '';
+  });
+
+  // При потере фокуса проверяет элемент на валидность
+  titleInput.addEventListener('blur', function () {
+    if (!titleInput.checkValidity()) {
+      titleInput.style.outline = '2px solid red';
+    }
+  });
+
   // Выводит сообщение при неправильно заполненной цене
   priceInput.addEventListener('invalid', function () {
     var inputError;
@@ -494,5 +506,17 @@
       inputError = '';
     }
     priceInput.setCustomValidity(inputError);
+  });
+
+  // Убирает выделение при фокусе
+  priceInput.addEventListener('focus', function () {
+    priceInput.style.outline = '';
+  });
+
+  // При потере фокуса проверяет элемент на валидность
+  priceInput.addEventListener('blur', function () {
+    if (!priceInput.checkValidity()) {
+      priceInput.style.outline = '2px solid red';
+    }
   });
 })();
