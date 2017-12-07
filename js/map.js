@@ -79,7 +79,6 @@
   var priceInput = form.querySelector('#price');
   var roomsSelect = form.querySelector('#room_number');
   var guestsSelect = form.querySelector('#capacity');
-  var currentValue;
 
   var popup;
   var popupClose;
@@ -139,7 +138,7 @@
    * getAuthorAvatar - Возвращает уникальный адрес изображения автора объявления
    * в зависимости от порядкого номера объявления adIndex.
    *
-   * @param  {numder} adIndex Порядковый номер объявления.
+   * @param  {number} adIndex Порядковый номер объявления.
    * @return {string}         Адрес вида img/avatars/user{{xx}}.png, где xx принимает
    * значение {01, 02, ..., 10, ...}.
    */
@@ -152,10 +151,20 @@
   };
 
   /**
+   * Объявление, содержит информацию об авторе, координаты расположения
+   * и описательную часть.
+   * @typedef Ad
+   * @type {Object}
+   * @property {Object} author - Автор объявления.
+   * @property {Object} offer - Описание объявления.
+   * @property {Object} location - Координты расположения на карте.
+   */
+
+  /**
    * createAd - Создает объект Ad (объявление) с заданными характеристиками.
    *
-   * @param  {numder} adIndex Порядковый номер объявления.
-   * @return {Object}         Объект Ad (объявление).
+   * @param  {number} adIndex Порядковый номер объявления.
+   * @return {Ad}             Объект Ad (объявление).
    */
   var createAd = function (adIndex) {
     var x = getRandomNumber(COORD_X.MIN, COORD_X.MAX);
@@ -189,7 +198,7 @@
   /**
    * createAds - Создает массив объектов Ad.
    *
-   * @return {Array}  Массив объектов Ad.
+   * @return {Array.<Ad>}  Массив объектов Ad.
    */
   var createAds = function () {
     var result = [];
@@ -204,9 +213,9 @@
    * renderPin - Возвращает DOM-элемент 'Метка объявления на карте',
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
-   * @param  {Object} ad        Объект Ad.
+   * @param  {Ad} ad            Объект Ad.
    * @param  {number} pinNumber Порядковый номер DOM-элемента 'Метка объявления на карте'
-   * @return {Object}           DOM-элемент 'Метка объявления на карте' с заданными свойствами.
+   * @return {Node}             DOM-элемент 'Метка объявления на карте' с заданными свойствами.
    */
   var renderPin = function (ad, pinNumber) {
     var mapPinElement = mapPinTemplate.cloneNode(true);
@@ -225,8 +234,8 @@
    * renderCard - Возвращает DOM-элемент 'Карточка объявления на карте',
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
-   * @param  {Object} ad Объект Ad.
-   * @return {Object}    DOM-элемент 'Карточка объявления на карте' с заданными свойствами.
+   * @param  {Ad} ad   Объект Ad.
+   * @return {Node}    DOM-элемент 'Карточка объявления на карте' с заданными свойствами.
    */
   var renderCard = function (ad) {
     var mapCardElement = mapCardTemplate.cloneNode(true);
@@ -285,7 +294,7 @@
    * showPopups - Подсвечивает активный элемент 'Метка объявления на карте'
    * и показвает соответсвущий ему элемент 'Карточка объявления на карте'.
    *
-   * @param  {Object} evt Событие Event.
+   * @param  {Event} evt Событие Event.
    */
   var showPopups = function (evt) {
     // переменной target присваивает ближайший родительский элемент 'Метка объявления на карте'
@@ -339,7 +348,7 @@
    * onPopupEscPress - Закрывает элемент 'Карточка объявления на карте'
    * при нажатии клавиши Esc.
    *
-   * @param  {Object} evt Событие Event.
+   * @param  {Event} evt Событие Event.
    */
   var onPopupEscPress = function (evt) {
     if (evt.keyCode === ESC_KEYCODE) {
@@ -351,7 +360,7 @@
    * onMainPinEnterPress - запускает функцию showMap при нажатии клавиши Enter
    * на элементе 'Главный пин'
    *
-   * @param  {Object} evt Событие Event.
+   * @param  {Event} evt Событие Event.
    */
   var onMainPinEnterPress = function (evt) {
     if (evt.keyCode === ENTER_KEYCODE) {
@@ -362,19 +371,16 @@
   /**
    * changeAccessibility - Меняет доступность элементов формы на противоположное значение.
    *
-   * @param  {Array} array Массив элементов
+   * @param  {NodeList} list DOM-коллекция.
    */
-  var changeAccessibility = function (array) {
-    array.forEach(function (elem) {
-      elem.disabled = (elem.disabled) ? false : true;
-    });
+  var changeAccessibility = function (list) {
+    for (var i = 0; i < list.length; i++) {
+      list[i].disabled = !list[i].disabled;
+    }
   };
 
   // Создает объявления
   ads = createAds();
-
-  // Формирует из DOM-коллекции массив
-  fieldsets = Array.prototype.slice.call(fieldsets);
 
   // Делает все поля формы недоступными в момент открытия страницы
   changeAccessibility(fieldsets);
@@ -390,8 +396,8 @@
    * syncTimes - Синхронизирует время заезда и время выезда путем выбора опции
    * синхронизиуемого списка того же индекса, что и у основного списка.
    *
-   * @param  {Object} times1 select -- основной список.
-   * @param  {Object} times2 select -- синхронизируемый список.
+   * @param  {Node} times1 select -- основной список.
+   * @param  {Node} times2 select -- синхронизируемый список.
    */
   var syncTimes = function (times1, times2) {
     times2.options[times1.selectedIndex].selected = true;
@@ -412,7 +418,7 @@
    */
   var syncGuestsWithRooms = function () {
     guestsSelect.value = (roomsSelect.value === '100') ? '0' : roomsSelect.value;
-    currentValue = guestsSelect.value;
+    var currentValue = guestsSelect.value;
 
     for (var i = 0; i < guestsSelect.options.length; i++) {
       guestsSelect.options[i].disabled = (currentValue === '0') ?
