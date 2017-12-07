@@ -61,6 +61,7 @@
   var copiedTitles = TITLES.slice();
 
   var ads;
+  var pins;
 
   var map = document.querySelector('.map');
   var mapPinTemplate = document.querySelector('template').content.querySelector('.map__pin');
@@ -214,20 +215,30 @@
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
    * @param  {Ad} ad            Объект Ad.
-   * @param  {number} pinNumber Порядковый номер DOM-элемента 'Метка объявления на карте'
    * @return {Node}             DOM-элемент 'Метка объявления на карте' с заданными свойствами.
    */
-  var renderPin = function (ad, pinNumber) {
+  var renderPin = function (ad) {
     var mapPinElement = mapPinTemplate.cloneNode(true);
 
     mapPinElement.querySelector('img').src = ad.author.avatar;
     mapPinElement.style.left = ad.location.x - PIN_SIZE.X / 2 + 'px';
     mapPinElement.style.top = ad.location.y + PIN_SIZE.Y + 'px';
-    // Присваивает порядковый номер элементу (для получения связи с соответствущим
-    // объявлением в массиве Ads)
-    mapPinElement.number = pinNumber;
 
     return mapPinElement;
+  };
+
+  /**
+   * createPins - Создает массив элементов 'Метка объявления на карте'.
+   *
+   * @return {Array.<Node>}  Массив элементов 'Метка объявления на карте'.
+   */
+  var createPins = function () {
+    var result = [];
+    for (var i = 0; i < AD_TOTAL; i++) {
+      result.push(renderPin(ads[i]));
+    }
+
+    return result;
   };
 
   /**
@@ -267,9 +278,9 @@
    *
    */
   var showMap = function () {
-    // Создает DOM-элементы 'Метка объявления на карте' и размещает во фрагменте 'fragment'
-    for (var i = 0; i < ads.length; i++) {
-      fragment.appendChild(renderPin(ads[i], i));
+    // Размещает DOM-элементы 'Метка объявления на карте' из массива во фрагменте 'fragment'
+    for (var i = 0; i < pins.length; i++) {
+      fragment.appendChild(pins[i]);
     }
 
     // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
@@ -314,9 +325,9 @@
       // находящийся в активном состоянии
       currentTarget = target;
 
-      // по номеру активного элемента создает соответствующий элемент
-      // 'Карточка объявления на карте' и размещает на карте
-      popup = renderCard(ads[currentTarget.number]);
+      // по индексу активного элемента в массиве элементов 'Метка объявления на карте'
+      // создает соответствующий элемент 'Карточка объявления на карте' и размещает на карте
+      popup = renderCard(ads[pins.indexOf(currentTarget)]);
       map.appendChild(popup);
 
       // ищет кнопку закрытия элеманта 'Карточка объявления на карте'
@@ -381,6 +392,9 @@
 
   // Создает объявления
   ads = createAds();
+
+  // Создает массив элементов 'Метка объявления на карте'
+  pins = createPins();
 
   // Делает все поля формы недоступными в момент открытия страницы
   changeAccessibility(fieldsets);
