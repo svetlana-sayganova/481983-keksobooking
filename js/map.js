@@ -61,7 +61,6 @@
   var copiedTitles = TITLES.slice();
 
   var ads;
-  var adIndex = 0;
 
   var map = document.querySelector('.map');
   var mapPinTemplate = document.querySelector('template').content.querySelector('.map__pin');
@@ -140,27 +139,30 @@
    * getAuthorAvatar - Возвращает уникальный адрес изображения автора объявления
    * в зависимости от порядкого номера объявления adIndex.
    *
-   * @return {string}  Адрес вида img/avatars/user{{xx}}.png, где xx принимает
+   * @param  {numder} adIndex Порядковый номер объявления.
+   * @return {string}         Адрес вида img/avatars/user{{xx}}.png, где xx принимает
    * значение {01, 02, ..., 10, ...}.
    */
-  var getAuthorAvatar = function () {
-    var path = 'img/avatars/user';
-    adIndex++;
-
-    return (adIndex < 10) ? (path + '0' + adIndex + '.png') : (path + adIndex + '.png');
+  var getAuthorAvatar = function (adIndex) {
+    return ['img/avatars/user',
+      adIndex < 10 ? '0' : '',
+      adIndex,
+      '.png'
+    ].join('');
   };
 
   /**
    * createAd - Создает объект Ad (объявление) с заданными характеристиками.
    *
-   * @return {Object}  Объект Ad (объявление).
+   * @param  {numder} adIndex Порядковый номер объявления.
+   * @return {Object}         Объект Ad (объявление).
    */
-  var createAd = function () {
+  var createAd = function (adIndex) {
     var x = getRandomNumber(COORD_X.MIN, COORD_X.MAX);
     var y = getRandomNumber(COORD_Y.MIN, COORD_Y.MAX);
     return {
       author: {
-        avatar: getAuthorAvatar()
+        avatar: getAuthorAvatar(adIndex)
       },
 
       offer: {
@@ -190,13 +192,12 @@
    * @return {Array}  Массив объектов Ad.
    */
   var createAds = function () {
-    var adArray = [];
+    var result = [];
     for (var i = 0; i < AD_TOTAL; i++) {
-      var ad = createAd();
-      adArray.push(ad);
+      result.push(createAd(i + 1)); // порядковый номер объявления начинается с 1
     }
 
-    return adArray;
+    return result;
   };
 
   /**
