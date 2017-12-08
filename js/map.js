@@ -467,35 +467,32 @@
   }, true);
 
   // Выводит сообщение при неправильно заполненном заголовке
-  titleInput.addEventListener('invalid', function () {
+  // и выделяет неверно заполненные поля красной рамкой
+  titleInput.addEventListener('input', function () {
     var inputError;
+    if (!titleInput.validity.valid) {
+      titleInput.style.outline = '2px solid red';
+    }
     if (titleInput.validity.tooShort) {
-      inputError = 'Заголовок должен состоять минимум из 30 символов';
+      inputError = 'Заголовок должен состоять минимум из 30 символов. Сейчас символов: ' + titleInput.value.length;
     } else if (titleInput.validity.tooLong) {
       inputError = 'Заголовок не должен превышать 100 символов';
     } else if (titleInput.validity.valueMissing) {
       inputError = 'Поле обязательно для заполнения';
     } else {
       inputError = '';
+      titleInput.style.outline = '';
     }
     titleInput.setCustomValidity(inputError);
   });
 
-  // Убирает выделение при фокусе
-  titleInput.addEventListener('focus', function () {
-    titleInput.style.outline = '';
-  });
-
-  // При потере фокуса проверяет элемент на валидность
-  titleInput.addEventListener('blur', function () {
-    if (!titleInput.checkValidity()) {
-      titleInput.style.outline = '2px solid red';
-    }
-  });
-
   // Выводит сообщение при неправильно заполненной цене
-  priceInput.addEventListener('invalid', function () {
+  // и выделяет неверно заполненные поля красной рамкой
+  priceInput.addEventListener('input', function () {
     var inputError;
+    if (!priceInput.validity.valid) {
+      priceInput.style.outline = '2px solid red';
+    }
     if (priceInput.validity.rangeUnderflow) {
       inputError = 'Цена для данного типа жилья не может быть менее ' + minPrices[typeSelect.value] + ' p.';
     } else if (priceInput.validity.rangeOverflow) {
@@ -504,19 +501,8 @@
       inputError = 'Поле обязательно для заполнения';
     } else {
       inputError = '';
+      priceInput.style.outline = '';
     }
     priceInput.setCustomValidity(inputError);
-  });
-
-  // Убирает выделение при фокусе
-  priceInput.addEventListener('focus', function () {
-    priceInput.style.outline = '';
-  });
-
-  // При потере фокуса проверяет элемент на валидность
-  priceInput.addEventListener('blur', function () {
-    if (!priceInput.checkValidity()) {
-      priceInput.style.outline = '2px solid red';
-    }
   });
 })();
