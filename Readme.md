@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Светлана Сайганова](https://up.htmlacademy.ru/javascript/11/user/481983).
-* Наставник: [Антон Попов](https://htmlacademy.ru/profile/joker).
+* Наставник: [Дмитрий Ермаков](https://htmlacademy.ru/profile/id195904).
 
 ---
 
