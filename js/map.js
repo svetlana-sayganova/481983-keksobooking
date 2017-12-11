@@ -45,7 +45,7 @@
     // Делает все поля формы доступными
     changeAccessibility(fieldsets);
 
-    // Заносит в поле с адресом текущее положепие элемента 'Главный пин'
+    // Заносит в поле с адресом текущее положение элемента 'Главный пин'
     // с поправкой на размер элемента
     window.form.setAddress(parseInt(getComputedStyle(mainPin).left, 10), parseInt(getComputedStyle(mainPin).top, 10) + mainPinSize.height / 2 + mainPinSize.arrow);
 
@@ -60,7 +60,7 @@
 
   /**
    * showPopups - Подсвечивает активный элемент 'Метка объявления на карте'
-   * и показвает соответсвущий ему элемент 'Карточка объявления на карте'.
+   * и показывает соответствущий ему элемент 'Карточка объявления на карте'.
    *
    * @param  {Event} evt Событие Event.
    */
@@ -124,7 +124,7 @@
 
   /**
    * onMainPinEnterPress - запускает функцию showMap при нажатии клавиши Enter
-   * на элементе 'Главный пин'
+   * на элементе 'Главный пин'.
    *
    * @param  {Event} evt Событие Event.
    */
@@ -157,7 +157,7 @@
       y: evt.clientY
     };
 
-    // Добавлеяет обработчик события перемещения мыши
+    // Добавляет обработчик события перемещения мыши
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
@@ -179,8 +179,8 @@
         y: mainPin.offsetTop - shift.y
       };
 
-      // Перемещает элемент при условии вхождения в заданнцю область перемещения
-      // (намеренная коррекция по оси ординат для избежания размещения элмента над уровнем горизнота)
+      // Перемещает элемент при условии вхождения в заданную область перемещения
+      // (намеренная коррекция по оси ординат для избежания размещения элемента над уровнем горизнота)
       if (currentCoords.x >= mainPinSize.width / 2 &&
         currentCoords.x <= map.clientWidth - mainPinSize.width / 2 &&
         currentCoords.y - mainPinSize.height / 2 >= window.data.coordY.MIN &&
@@ -189,13 +189,13 @@
         mainPin.style.left = currentCoords.x + 'px';
         mainPin.style.top = currentCoords.y + 'px';
 
-        // Заносит в поле с адресом текущее положепие элемента 'Главный пин'
+        // Заносит в поле с адресом текущее положение элемента 'Главный пин'
         // с поправкой на размер элемента
         window.form.setAddress(currentCoords.x, currentCoords.y + mainPinSize.height / 2 + mainPinSize.arrow);
       }
     };
 
-    // При опускании кнопки мыши прекащает слушать события движения мыши
+    // При опускании кнопки мыши прекращает слушать события движения мыши
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
