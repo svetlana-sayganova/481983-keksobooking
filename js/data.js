@@ -142,6 +142,7 @@
 
   window.data = {
     createAds: createAds,
-    types: TYPES
+    types: TYPES,
+    coordY: COORD_Y
   };
 })();

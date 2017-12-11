@@ -5,6 +5,11 @@
 
   var mapPins = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
+  var mainPinSize = {
+    width: 62,
+    height: 62,
+    arrow: 22
+  };
 
   var fragment = document.createDocumentFragment();
 
@@ -23,6 +28,9 @@
    *
    */
   var showMap = function () {
+    // Назначает обработчик onMainPinMouseDown на элемент 'Главный пин'
+    mainPin.addEventListener('mousedown', onMainPinMouseDown);
+
     // Размещает DOM-элементы 'Метка объявления на карте' из массива во фрагменте 'fragment'
     for (var i = 0; i < pins.length; i++) {
       fragment.appendChild(pins[i]);
@@ -34,21 +42,25 @@
     map.classList.remove('map--faded');
     form.classList.remove('notice__form--disabled');
 
-    // делает все поля формы доступными
+    // Делает все поля формы доступными
     changeAccessibility(fieldsets);
 
-    // назначает обработчик showPopups на элемент 'Карта',
+    // Заносит в поле с адресом текущее положение элемента 'Главный пин'
+    // с поправкой на размер элемента
+    window.form.setAddress(parseInt(getComputedStyle(mainPin).left, 10), parseInt(getComputedStyle(mainPin).top, 10) + mainPinSize.height / 2 + mainPinSize.arrow);
+
+    // Назначает обработчик showPopups на элемент 'Карта',
     // в котором расположены элементы 'Метка объявления на карте'
     mapPins.addEventListener('click', showPopups);
 
-    // удадаляет обработчики с элемента 'Главный пин'
+    // Удаляет обработчики с элемента 'Главный пин'
     mainPin.removeEventListener('mouseup', showMap);
     mainPin.removeEventListener('keydown', onMainPinEnterPress);
   };
 
   /**
    * showPopups - Подсвечивает активный элемент 'Метка объявления на карте'
-   * и показвает соответсвущий ему элемент 'Карточка объявления на карте'.
+   * и показывает соответствущий ему элемент 'Карточка объявления на карте'.
    *
    * @param  {Event} evt Событие Event.
    */
@@ -112,7 +124,7 @@
 
   /**
    * onMainPinEnterPress - запускает функцию showMap при нажатии клавиши Enter
-   * на элементе 'Главный пин'
+   * на элементе 'Главный пин'.
    *
    * @param  {Event} evt Событие Event.
    */
@@ -129,6 +141,71 @@
     for (var i = 0; i < list.length; i++) {
       list[i].disabled = !list[i].disabled;
     }
+  };
+
+  /**
+   * onMainPinMouseDown - Перемещает элемент по странице.
+   *
+   * @param  {Event} evt Событие Event.
+   */
+  var onMainPinMouseDown = function (evt) {
+    evt.preventDefault();
+
+    // Запоминает координаты стартовой точки, с которой началось перемещение
+    var startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    // Добавляет обработчик события перемещения мыши
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      // Рассчитывает смещение относительно стартовой точки
+      var shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      // Обновляет координаты стартовой точки
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      // Рассчитывает положение перемещаемого элемента
+      var currentCoords = {
+        x: mainPin.offsetLeft - shift.x,
+        y: mainPin.offsetTop - shift.y
+      };
+
+      // Перемещает элемент при условии вхождения в заданную область перемещения
+      // (намеренная коррекция по оси ординат для избежания размещения элемента над уровнем горизнота)
+      if (currentCoords.x >= mainPinSize.width / 2 &&
+        currentCoords.x <= map.clientWidth - mainPinSize.width / 2 &&
+        currentCoords.y - mainPinSize.height / 2 >= window.data.coordY.MIN &&
+        currentCoords.y - mainPinSize.height / 2 <= window.data.coordY.MAX) {
+
+        mainPin.style.left = currentCoords.x + 'px';
+        mainPin.style.top = currentCoords.y + 'px';
+
+        // Заносит в поле с адресом текущее положение элемента 'Главный пин'
+        // с поправкой на размер элемента
+        window.form.setAddress(currentCoords.x, currentCoords.y + mainPinSize.height / 2 + mainPinSize.arrow);
+      }
+    };
+
+    // При опускании кнопки мыши прекращает слушать события движения мыши
+    var onMouseUp = function (upEvt) {
+      upEvt.preventDefault();
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    // Добавляет обработчики события передвижения мыши и отпускания кнопки мыши
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   };
 
   // Создает объявления
