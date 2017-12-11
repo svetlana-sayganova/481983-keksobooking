@@ -16,6 +16,7 @@
   var priceInput = form.querySelector('#price');
   var roomsSelect = form.querySelector('#room_number');
   var guestsSelect = form.querySelector('#capacity');
+  var address = form.querySelector('#address');
 
   /**
    * syncTimes - Синхронизирует время заезда и время выезда путем выбора опции
@@ -116,4 +117,18 @@
     }
     priceInput.setCustomValidity(inputError);
   });
+
+  /**
+   * setAddress - В поле 'Адрес' устанавливает заданные кооридинаты.
+   *
+   * @param  {number} x Координата на оси абсцисс.
+   * @param  {number} y Координата на оси ординат.
+   */
+  var setAddress = function (x, y) {
+    address.value = 'x: ' + x + ', y: ' + y;
+  };
+
+  window.form = {
+    setAddress: setAddress
+  };
 })();
