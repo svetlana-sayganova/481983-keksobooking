@@ -53,7 +53,7 @@
     // в котором расположены элементы 'Метка объявления на карте'
     mapPins.addEventListener('click', showPopups);
 
-    // Удадаляет обработчики с элемента 'Главный пин'
+    // Удаляет обработчики с элемента 'Главный пин'
     mainPin.removeEventListener('mouseup', showMap);
     mainPin.removeEventListener('keydown', onMainPinEnterPress);
   };
