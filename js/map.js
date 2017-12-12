@@ -5,10 +5,16 @@
 
   var mapPins = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
+
   var mainPinSize = {
     width: 62,
     height: 62,
     arrow: 22
+  };
+
+  var mainPinDefaultPosition = {
+    left: parseInt(getComputedStyle(mainPin).left, 10),
+    top: parseInt(getComputedStyle(mainPin).top, 10)
   };
 
   var fragment = document.createDocumentFragment();
@@ -47,7 +53,7 @@
 
     // Заносит в поле с адресом текущее положение элемента 'Главный пин'
     // с поправкой на размер элемента
-    window.form.setAddress(parseInt(getComputedStyle(mainPin).left, 10), parseInt(getComputedStyle(mainPin).top, 10) + mainPinSize.height / 2 + mainPinSize.arrow);
+    window.form.setAddress(mainPinDefaultPosition.left, mainPinDefaultPosition.top + mainPinSize.height / 2 + mainPinSize.arrow);
 
     // Назначает обработчик showPopups на элемент 'Карта',
     // в котором расположены элементы 'Метка объявления на карте'
