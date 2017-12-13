@@ -124,7 +124,7 @@
       priceInput.style.outline = '2px solid red';
     }
     if (priceInput.validity.rangeUnderflow) {
-      inputError = 'Цена для данного типа жилья не может быть менее ' + minPrices[typeSelect.value] + ' p.';
+      inputError = 'Цена для данного типа жилья не может быть менее ' + priceInput.min + ' p.';
     } else if (priceInput.validity.rangeOverflow) {
       inputError = 'Цена не может быть более 1000000 р.';
     } else if (priceInput.validity.valueMissing) {
