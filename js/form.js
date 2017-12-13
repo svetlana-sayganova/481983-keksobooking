@@ -1,12 +1,12 @@
 'use strict';
 
 (function () {
-  var minPrices = {
-    'flat': 1000,
-    'bungalo': 0,
-    'house': 5000,
-    'palace': 10000
-  };
+
+  var types = ['bungalo', 'flat', 'house', 'palace'];
+  var minPrices = ['0', '1000', '5000', '10000'];
+  var rooms = ['1', '2', '3', '100'];
+  var guests = ['1', '2', '3', '0'];
+  var times = ['12:00', '13:00', '14:00'];
 
   var form = document.querySelector('.notice__form');
   var titleInput = form.querySelector('#title');
@@ -19,59 +19,77 @@
   var address = form.querySelector('#address');
 
   /**
-   * syncTimes - Синхронизирует время заезда и время выезда путем выбора опции
-   * синхронизиуемого списка того же индекса, что и у основного списка.
+   * syncValues - Устанавливает элементу element переданное значение value.
    *
-   * @param  {Node} times1 select -- основной список.
-   * @param  {Node} times2 select -- синхронизируемый список.
+   * @param  {Node}          element Элемент.
+   * @param  {number|string} value   Значение.
    */
-  var syncTimes = function (times1, times2) {
-    times2.options[times1.selectedIndex].selected = true;
+  var syncValues = function (element, value) {
+    element.value = value;
   };
 
   /**
-   * syncTypeWithPrice - Устанавливает минимальнную стоимость жилья в зависимости от типа.
+   * syncValueWithMin - Устанавливает минимиальное значение элементу element
+   * равным переданному значению value.
    *
+   * @param  {Node}   element Элемент.
+   * @param  {number} value   Значение.
    */
-  var syncTypeWithPrice = function () {
-    priceInput.min = minPrices[typeSelect.value];
+  var syncValueWithMin = function (element, value) {
+    element.min = value;
   };
 
   /**
-   * syncGuestsWithRooms - В зависимости от количства комнат блокирует недоступное для размещения
-   * количество гостей.
+   * syncGuestsWithRooms - Устанавливает элементу guestField переданное значение guestValue
+   * и в зависимости от него блокирует недоступные для выбора значения.
    *
+   * @param  {Node}   guestField Элемент.
+   * @param  {number} guestValue Значение.
    */
-  var syncGuestsWithRooms = function () {
-    guestsSelect.value = (roomsSelect.value === '100') ? '0' : roomsSelect.value;
-    var currentValue = guestsSelect.value;
+  var syncGuestsWithRooms = function (guestField, guestValue) {
+    guestField.value = guestValue;
+    var currentValue = guestField.value;
 
-    for (var i = 0; i < guestsSelect.options.length; i++) {
-      guestsSelect.options[i].disabled = (currentValue === '0') ?
-        (guestsSelect.options[i].value !== '0') :
-        (guestsSelect.options[i].value > currentValue || guestsSelect.options[i].value === '0');
+    for (var i = 0; i < guestField.options.length; i++) {
+      guestField.options[i].disabled = (currentValue === '0') ?
+        (guestField.options[i].value !== '0') :
+        (guestField.options[i].value > currentValue || guestField.options[i].value === '0');
     }
   };
 
+  /**
+   * setAddress - В поле 'Адрес' устанавливает заданные координаты.
+   *
+   * @param  {number} x Координата на оси абсцисс.
+   * @param  {number} y Координата на оси ординат.
+   */
+  var setAddress = function (x, y) {
+    address.value = 'x: ' + x + ', y: ' + y;
+  };
+
   // Синхронизирует необходимые значия до взаимодействия с формой
-  syncTimes(checkinSelect, checkoutSelect);
-  syncTypeWithPrice();
-  syncGuestsWithRooms();
+  window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
+  window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
+  window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
 
   // Синхронизирует время заезда и время выезда
   checkinSelect.addEventListener('change', function () {
-    syncTimes(checkinSelect, checkoutSelect);
+    window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
   });
   checkoutSelect.addEventListener('change', function () {
-    syncTimes(checkoutSelect, checkinSelect);
+    window.synchronizeFields(checkoutSelect, checkinSelect, times, times, syncValues);
   });
 
   // Устанавливает минимальнную стоимость жилья в зависимости от типа
-  typeSelect.addEventListener('change', syncTypeWithPrice);
+  typeSelect.addEventListener('change', function () {
+    window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
+  });
 
   // В зависимости от количства комнат блокирует недоступное для размещения
   // количество гостей
-  roomsSelect.addEventListener('change', syncGuestsWithRooms);
+  roomsSelect.addEventListener('change', function () {
+    window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
+  });
 
   // Выделяет неверно заполненные поля красной рамкой
   form.addEventListener('invalid', function (evt) {
@@ -106,7 +124,7 @@
       priceInput.style.outline = '2px solid red';
     }
     if (priceInput.validity.rangeUnderflow) {
-      inputError = 'Цена для данного типа жилья не может быть менее ' + minPrices[typeSelect.value] + ' p.';
+      inputError = 'Цена для данного типа жилья не может быть менее ' + priceInput.min + ' p.';
     } else if (priceInput.validity.rangeOverflow) {
       inputError = 'Цена не может быть более 1000000 р.';
     } else if (priceInput.validity.valueMissing) {
@@ -117,16 +135,6 @@
     }
     priceInput.setCustomValidity(inputError);
   });
-
-  /**
-   * setAddress - В поле 'Адрес' устанавливает заданные координаты.
-   *
-   * @param  {number} x Координата на оси абсцисс.
-   * @param  {number} y Координата на оси ординат.
-   */
-  var setAddress = function (x, y) {
-    address.value = 'x: ' + x + ', y: ' + y;
-  };
 
   window.form = {
     setAddress: setAddress

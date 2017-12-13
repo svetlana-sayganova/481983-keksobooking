@@ -5,10 +5,16 @@
 
   var mapPins = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
+
   var mainPinSize = {
     width: 62,
     height: 62,
     arrow: 22
+  };
+
+  var mainPinDefaultPosition = {
+    left: parseInt(getComputedStyle(mainPin).left, 10),
+    top: parseInt(getComputedStyle(mainPin).top, 10)
   };
 
   var fragment = document.createDocumentFragment();
@@ -18,9 +24,6 @@
 
   var ads;
   var pins;
-  var popup;
-  var popupClose;
-  var currentTarget;
 
   /**
    * showMap - создает и показывает элементы 'Метка объявления на карте'
@@ -47,79 +50,17 @@
 
     // Заносит в поле с адресом текущее положение элемента 'Главный пин'
     // с поправкой на размер элемента
-    window.form.setAddress(parseInt(getComputedStyle(mainPin).left, 10), parseInt(getComputedStyle(mainPin).top, 10) + mainPinSize.height / 2 + mainPinSize.arrow);
+    window.form.setAddress(mainPinDefaultPosition.left, mainPinDefaultPosition.top + mainPinSize.height / 2 + mainPinSize.arrow);
 
     // Назначает обработчик showPopups на элемент 'Карта',
     // в котором расположены элементы 'Метка объявления на карте'
-    mapPins.addEventListener('click', showPopups);
+    mapPins.addEventListener('click', function (evt) {
+      window.showCard.showPopups(evt, ads, pins); // пока использует созданные ниже значиея
+    });
 
     // Удаляет обработчики с элемента 'Главный пин'
     mainPin.removeEventListener('mouseup', showMap);
     mainPin.removeEventListener('keydown', onMainPinEnterPress);
-  };
-
-  /**
-   * showPopups - Подсвечивает активный элемент 'Метка объявления на карте'
-   * и показывает соответствущий ему элемент 'Карточка объявления на карте'.
-   *
-   * @param  {Event} evt Событие Event.
-   */
-  var showPopups = function (evt) {
-    // переменной target присваивает ближайший родительский элемент 'Метка объявления на карте'
-    // исходнго элемента, на котором произошло событие
-    var target = evt.target.closest('.map__pin');
-
-    if (target && target !== mainPin) {
-      // удаляет подсветку с предыдущего активного элемента 'Метка объявления на карте'
-      // и соответствующий ему элемент 'Карточка объявления на карте'
-      if (currentTarget) {
-        currentTarget.classList.remove('map__pin--active');
-        popup.remove();
-      }
-      // добавляет подсветку элементу 'Метка объявления на карте'
-      target.classList.add('map__pin--active');
-      // переменной currentTarget присваивает элемент 'Метка объявления на карте',
-      // находящийся в активном состоянии
-      currentTarget = target;
-
-      // по индексу активного элемента в массиве элементов 'Метка объявления на карте'
-      // создает соответствующий элемент 'Карточка объявления на карте' и размещает на карте
-      popup = window.card.renderCard(ads[pins.indexOf(currentTarget)]);
-      map.appendChild(popup);
-
-      // ищет кнопку закрытия элеманта 'Карточка объявления на карте'
-      // и назначает ему обработчик closePopup (закрытие элемента по клику)
-      popupClose = map.querySelector('.popup__close');
-      popupClose.addEventListener('click', closePopup);
-
-      // назначает обработчик onPopupEscPress (закрытие элемента по нажатию на клавишу Esc)
-      document.addEventListener('keydown', onPopupEscPress);
-    }
-    // если клик произошел по элементу 'Главный пин', то закрывает открытый попап
-    if (popup && target === mainPin) {
-      closePopup();
-    }
-  };
-
-  /**
-   * closePopup - Снимает подсветку с активного элемента 'Метка объявления на карте'
-   * и скрывает соответствущий ему элемент 'Карточка объявления на карте'.
-   *
-   */
-  var closePopup = function () {
-    currentTarget.classList.remove('map__pin--active');
-    popup.classList.add('hidden');
-    document.removeEventListener('keydown', onPopupEscPress);
-  };
-
-  /**
-   * onPopupEscPress - Закрывает элемент 'Карточка объявления на карте'
-   * при нажатии клавиши Esc.
-   *
-   * @param  {Event} evt Событие Event.
-   */
-  var onPopupEscPress = function (evt) {
-    window.util.isEscEvent(evt, closePopup);
   };
 
   /**
@@ -195,7 +136,7 @@
       }
     };
 
-    // При опускании кнопки мыши прекращает слушать события движения мыши
+    // При отпускании кнопки мыши прекращает слушать события движения мыши
     var onMouseUp = function (upEvt) {
       upEvt.preventDefault();
 
