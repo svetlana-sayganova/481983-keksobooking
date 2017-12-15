@@ -12,9 +12,12 @@
     arrow: 22
   };
 
+  var mainPinLeft = getComputedStyle(mainPin).left;
+  var mainPinTop = getComputedStyle(mainPin).top;
+
   var mainPinDefaultPosition = {
-    left: parseInt(getComputedStyle(mainPin).left, 10),
-    top: parseInt(getComputedStyle(mainPin).top, 10)
+    left: parseInt(mainPinLeft, 10),
+    top: parseInt(mainPinTop, 10)
   };
 
   var fragment = document.createDocumentFragment();
