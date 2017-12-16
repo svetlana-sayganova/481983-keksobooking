@@ -67,74 +67,113 @@
     address.value = 'x: ' + x + ', y: ' + y;
   };
 
-  // Синхронизирует необходимые значия до взаимодействия с формой
-  window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
-  window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
-  window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
-
-  // Синхронизирует время заезда и время выезда
-  checkinSelect.addEventListener('change', function () {
+  /**
+   * activateForm - Синхронизирует необходимые значия до взаимодействия с формой
+   * и заносит в поле с адресом значение по умолчанию.
+   *
+   */
+  var activateForm = function () {
+    // Синхронизирует необходимые значия до взаимодействия с формой
     window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
-  });
-  checkoutSelect.addEventListener('change', function () {
-    window.synchronizeFields(checkoutSelect, checkinSelect, times, times, syncValues);
-  });
-
-  // Устанавливает минимальнную стоимость жилья в зависимости от типа
-  typeSelect.addEventListener('change', function () {
     window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
-  });
-
-  // В зависимости от количства комнат блокирует недоступное для размещения
-  // количество гостей
-  roomsSelect.addEventListener('change', function () {
     window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
-  });
+    // Заносит в поле с адресом значение по умолчанию
+    setAddress(window.map.addressDefaultCoords.left, window.map.addressDefaultCoords.top);
+  };
 
-  // Выделяет неверно заполненные поля красной рамкой
-  form.addEventListener('invalid', function (evt) {
-    evt.target.style.outline = '2px solid red';
-  }, true);
+  /**
+   * interactWithForm - Задает поведение формы при взаимодействии с ней
+   * (реакция на события).
+   *
+   */
+  var interactWithForm = function () {
+    // Синхронизирует время заезда и время выезда
+    checkinSelect.addEventListener('change', function () {
+      window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
+    });
+    checkoutSelect.addEventListener('change', function () {
+      window.synchronizeFields(checkoutSelect, checkinSelect, times, times, syncValues);
+    });
 
-  // Выводит сообщение при неправильно заполненном заголовке
-  // и выделяет неверно заполненные поля красной рамкой
-  titleInput.addEventListener('input', function () {
-    var inputError;
-    if (!titleInput.validity.valid) {
-      titleInput.style.outline = '2px solid red';
-    }
-    if (titleInput.validity.tooShort) {
-      inputError = 'Заголовок должен состоять минимум из 30 символов. Сейчас символов: ' + titleInput.value.length;
-    } else if (titleInput.validity.tooLong) {
-      inputError = 'Заголовок не должен превышать 100 символов';
-    } else if (titleInput.validity.valueMissing) {
-      inputError = 'Поле обязательно для заполнения';
-    } else {
-      inputError = '';
-      titleInput.style.outline = '';
-    }
-    titleInput.setCustomValidity(inputError);
-  });
+    // Устанавливает минимальнную стоимость жилья в зависимости от типа
+    typeSelect.addEventListener('change', function () {
+      window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
+    });
 
-  // Выводит сообщение при неправильно заполненной цене
-  // и выделяет неверно заполненные поля красной рамкой
-  priceInput.addEventListener('input', function () {
-    var inputError;
-    if (!priceInput.validity.valid) {
-      priceInput.style.outline = '2px solid red';
-    }
-    if (priceInput.validity.rangeUnderflow) {
-      inputError = 'Цена для данного типа жилья не может быть менее ' + priceInput.min + ' p.';
-    } else if (priceInput.validity.rangeOverflow) {
-      inputError = 'Цена не может быть более 1000000 р.';
-    } else if (priceInput.validity.valueMissing) {
-      inputError = 'Поле обязательно для заполнения';
-    } else {
-      inputError = '';
-      priceInput.style.outline = '';
-    }
-    priceInput.setCustomValidity(inputError);
-  });
+    // В зависимости от количства комнат блокирует недоступное для размещения
+    // количество гостей
+    roomsSelect.addEventListener('change', function () {
+      window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
+    });
+
+    // Выделяет неверно заполненные поля красной рамкой
+    form.addEventListener('invalid', function (evt) {
+      evt.target.style.outline = '2px solid red';
+    }, true);
+
+    // Выводит сообщение при неправильно заполненном заголовке
+    // и выделяет неверно заполненные поля красной рамкой
+    titleInput.addEventListener('input', function () {
+      var inputError;
+      if (!titleInput.validity.valid) {
+        titleInput.style.outline = '2px solid red';
+      }
+      if (titleInput.validity.tooShort) {
+        inputError = 'Заголовок должен состоять минимум из 30 символов. Сейчас символов: ' + titleInput.value.length;
+      } else if (titleInput.validity.tooLong) {
+        inputError = 'Заголовок не должен превышать 100 символов';
+      } else if (titleInput.validity.valueMissing) {
+        inputError = 'Поле обязательно для заполнения';
+      } else {
+        inputError = '';
+        titleInput.style.outline = '';
+      }
+      titleInput.setCustomValidity(inputError);
+    });
+
+    // Выводит сообщение при неправильно заполненной цене
+    // и выделяет неверно заполненные поля красной рамкой
+    priceInput.addEventListener('input', function () {
+      var inputError;
+      if (!priceInput.validity.valid) {
+        priceInput.style.outline = '2px solid red';
+      }
+      if (priceInput.validity.rangeUnderflow) {
+        inputError = 'Цена для данного типа жилья не может быть менее ' + priceInput.min + ' p.';
+      } else if (priceInput.validity.rangeOverflow) {
+        inputError = 'Цена не может быть более 1000000 р.';
+      } else if (priceInput.validity.valueMissing) {
+        inputError = 'Поле обязательно для заполнения';
+      } else {
+        inputError = '';
+        priceInput.style.outline = '';
+      }
+      priceInput.setCustomValidity(inputError);
+    });
+
+    // Запускает функцию successHandler в случае успешной отправки данных на сервер,
+    // иначе выводит сообщение об ошибке.
+    form.addEventListener('submit', function (evt) {
+      window.backend.save(new FormData(form), successHandler, window.popup.createErrorPopup);
+      evt.preventDefault();
+    });
+  };
+
+  /**
+   * successHandler - выводит сообщение об успешной отправке формы
+   * и сбрасывает значения формы на значения по умолчаню.
+   *
+   */
+  var successHandler = function () {
+    window.popup.createSuccessPopup();
+    form.reset();
+    activateForm();
+    // Устанавливает элемент 'Главный пин' на начальную позицию
+    window.map.setMainPinCoords();
+  };
+
+  activateForm();
+  interactWithForm();
 
   window.form = {
     setAddress: setAddress
