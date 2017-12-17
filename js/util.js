@@ -4,13 +4,25 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
 
-  var isEscEvent = function (evt, action) {
+  /**
+   * runOnEnter - Если нажатая клавиша - Esc, то вызывает переданную функцию action.
+   *
+   * @param  {Event}    evt    Событие Event.
+   * @param  {function} action Выполняемая функция.
+   */
+  var runOnEsc = function (evt, action) {
     if (evt.keyCode === ESC_KEYCODE) {
       action();
     }
   };
 
-  var isEnterEvent = function (evt, action) {
+  /**
+   * runOnEnter - Если нажатая клавиша - Enter, то вызывает переданную функцию action.
+   *
+   * @param  {Event}    evt    Событие Event.
+   * @param  {function} action Выполняемая функция.
+   */
+  var runOnEnter = function (evt, action) {
     if (evt.keyCode === ENTER_KEYCODE) {
       action();
     }
@@ -48,7 +60,7 @@
 
   /**
    * getArray - возвращает массив заданной длины с неповторяющимися элементами
-   * на основе переданного массива.
+   * на основе переданного массива в случайном порядке.
    *
    * @param  {Array}  array  Массив, на основе которого формируется новый массив.
    * @param  {number} length Длина формируемого массива.
@@ -67,8 +79,8 @@
   };
 
   window.util = {
-    isEscEvent: isEscEvent,
-    isEnterEvent: isEnterEvent,
+    runOnEsc: runOnEsc,
+    runOnEnter: runOnEnter,
     getArray: getArray
   };
 })();

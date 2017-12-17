@@ -71,7 +71,7 @@
    * @param  {Event} evt Событие Event.
    */
   var onPopupEscPress = function (evt) {
-    window.util.isEscEvent(evt, closePopup);
+    window.util.runOnEsc(evt, closePopup);
   };
 
   window.showCard = {

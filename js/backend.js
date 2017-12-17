@@ -10,6 +10,13 @@
     500: 'Ошибка сервера'
   };
 
+  /**
+   * setup - Создает новый объект XMLHttpRequest.
+   *
+   * @param  {function} onLoad  Коллбэк, срабатывает при при успешном выполнении запроса.
+   * @param  {function} onError Коллбэк, срабатывает при при неуспешном выполнении запроса.
+   * @return {XMLHttpRequest}   Объект XMLHttpRequest.
+   */
   var setup = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -35,6 +42,12 @@
     return xhr;
   };
 
+  /**
+   * load - Получает данные с сервера.
+   *
+   * @param  {function} onLoad
+   * @param  {function} onError
+   */
   var load = function (onLoad, onError) {
     var xhr = setup(onLoad, onError);
 
@@ -42,6 +55,13 @@
     xhr.send();
   };
 
+  /**
+   * save - Отправляет предоставленные данные data на сервер.
+   *
+   * @param  {*}        data
+   * @param  {function} onLoad
+   * @param  {function} onError
+   */
   var save = function (data, onLoad, onError) {
     var xhr = setup(onLoad, onError);
 

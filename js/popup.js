@@ -16,7 +16,7 @@
   popup.style.fontSize = '30px';
 
   var onEscPress = function (evt) {
-    window.util.isEscEvent(evt, closePopup);
+    window.util.runOnEsc(evt, closePopup);
   };
 
   var onDocumentClick = function (evt) {
