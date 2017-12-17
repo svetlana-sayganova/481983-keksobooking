@@ -118,17 +118,24 @@
       if (!titleInput.validity.valid) {
         titleInput.style.outline = '2px solid red';
       }
-      if (titleInput.validity.tooShort) {
+      if (titleInput.validity.tooShort || (titleInput.value.length < 30 && titleInput.value.length !== 0)) {
         inputError = 'Заголовок должен состоять минимум из 30 символов. Сейчас символов: ' + titleInput.value.length;
       } else if (titleInput.validity.tooLong) {
         inputError = 'Заголовок не должен превышать 100 символов';
-      } else if (titleInput.validity.valueMissing) {
-        inputError = 'Поле обязательно для заполнения';
       } else {
         inputError = '';
         titleInput.style.outline = '';
       }
       titleInput.setCustomValidity(inputError);
+    });
+
+    // Выводит сообщение при незаполнении поля заголовка
+    titleInput.addEventListener('invalid', function () {
+      if (titleInput.validity.valueMissing) {
+        var inputError = 'Поле обязательно для заполнения';
+        titleInput.style.outline = '2px solid red';
+        titleInput.setCustomValidity(inputError);
+      }
     });
 
     // Выводит сообщение при неправильно заполненной цене
