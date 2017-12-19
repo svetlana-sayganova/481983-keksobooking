@@ -59,20 +59,21 @@
   };
 
   /**
-   * getArray - возвращает массив заданной длины с неповторяющимися элементами
-   * на основе переданного массива в случайном порядке.
+   * mixArray - создает массив на основе переданного со случайно расположенными
+   * элементами.
    *
    * @param  {Array}  array  Массив, на основе которого формируется новый массив.
-   * @param  {number} length Длина формируемого массива.
    * @return {Array}         Сформированный массив.
    */
-  var getArray = function (array, length) {
+  var mixArray = function (array) {
     var result = [];
     var clone = array.slice();
 
-    for (var i = 0; i < length; i++) {
-      var randomElement = getRandomElement(clone, true);
-      result.push(randomElement);
+    for (var i = 0; i < array.length; i++) {
+      var element;
+
+      element = getRandomElement(clone, true);
+      result.push(element);
     }
 
     return result;
@@ -81,6 +82,6 @@
   window.util = {
     runOnEsc: runOnEsc,
     runOnEnter: runOnEnter,
-    getArray: getArray
+    mixArray: mixArray
   };
 })();

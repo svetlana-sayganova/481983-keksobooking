@@ -10,11 +10,11 @@
   var mapCardTemplate = document.querySelector('template').content.querySelector('.map__card');
 
   /**
-   * renderCard - Возвращает DOM-элемент 'Карточка объявления на карте',
+   * renderCard - Возвращает DOM-элемент 'Карточка объявления',
    * созданный на основе шаблона с заданными свойствами из объекта Ad.
    *
    * @param  {Ad} ad   Объект Ad.
-   * @return {Node}    DOM-элемент 'Карточка объявления на карте' с заданными свойствами.
+   * @return {Node}    DOM-элемент 'Карточка объявления' с заданными свойствами.
    */
   var renderCard = function (ad) {
     var mapCardElement = mapCardTemplate.cloneNode(true);
