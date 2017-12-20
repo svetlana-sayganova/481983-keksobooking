@@ -41,9 +41,15 @@
   };
 
   filtersContainer.addEventListener('change', function () {
-    window.map.updateMap();
+    window.util.debounce(window.map.updateMap, 2000);
   });
 
+  /**
+   * filterAds - Возвращает отфильтрованный массив объявлений.
+   *
+   * @param  {Arr.<Ad>} ads Массив объявлений до фильтрации.
+   * @return {Arr.<Ad>}     Отфильтрованный массив объявлений.
+   */
   var filterAds = function (ads) {
     filteredAds = ads.slice();
 
@@ -56,6 +62,7 @@
     // Формирует массив из выбранных характеристик объявления
     var checkedFeatures = Array.from(filtersContainer.querySelectorAll('.map__filter-set input[name="features"]:checked'));
 
+    // Фильтрует объявления по каждому примененному фильтру
     appliedFilters.forEach(function (filter) {
       var filterName = filter.name;
       if (filterName === 'housing-type') {
@@ -69,6 +76,7 @@
       }
     });
 
+    // Фильтрует объявления по каждой выбранной характеристике
     checkedFeatures.forEach(function (feature) {
       filteredAds = filterByFeatures(filteredAds, feature.value);
     });

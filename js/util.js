@@ -79,9 +79,26 @@
     return result;
   };
 
+  /**
+   * debounce - Откладывает выполнение функции action на время interval
+   * и предотвращает 'дребезг' при повтороном обращении к фукнции action раньше,
+   * чем через время interval.
+   *
+   * @param  {function} action   Выполняемая функция.
+   * @param  {number}   interval Время в мс.
+   */
+  var debounce = function (action, interval) {
+    var lastTimeout;
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(action, interval);
+  };
+
   window.util = {
     runOnEsc: runOnEsc,
     runOnEnter: runOnEnter,
-    mixArray: mixArray
+    mixArray: mixArray,
+    debounce: debounce
   };
 })();
