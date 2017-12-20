@@ -41,7 +41,7 @@
   };
 
   filtersContainer.addEventListener('change', function () {
-    window.util.debounce(window.map.updateMap, 2000);
+    window.util.debounce(window.map.updateMap, 500);
   });
 
   /**
