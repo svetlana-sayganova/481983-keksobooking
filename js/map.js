@@ -3,13 +3,15 @@
 (function () {
   var map = document.querySelector('.map');
 
-  var mapPins = map.querySelector('.map__pins');
+  var pinsContainer = map.querySelector('.map__pins');
   var mainPin = map.querySelector('.map__pin--main');
 
   var COORD_Y = {
     MIN: 100,
     MAX: 500
   };
+
+  var PINS_AMOUNT_MAX = 5;
 
   var mainPinSize = {
     width: 62,
@@ -28,48 +30,97 @@
   var form = document.querySelector('.notice__form');
   var fieldsets = form.querySelectorAll('fieldset');
 
+  var ads = [];
+  var pins = [];
+
   /**
-   * showMap - создает и показывает элементы 'Метка объявления на карте'
+  * Объявление, содержит информацию об авторе, координаты расположения
+  * и описательную часть.
+  * @typedef Ad
+  * @type {Object}
+  * @property {Object} author - Автор объявления.
+  * @property {Object} offer - Описание объявления.
+  * @property {Object} location - Координты расположения на карте.
+  */
+
+  /**
+   * onMainPinMouseUp - При клике на элементе 'Главный пин' в случае успешной загрузки данных
+   * с сервера запускает функцию onLoad, иначе выводит сообщение об ошибке.
+   *
+   */
+  var onMainPinMouseUp = function () {
+    window.backend.load(onLoad, window.popup.createErrorPopup);
+  };
+
+  /**
+   * onMainPinEnterPress - При нажатеии клавиши Enter на элементе 'Главный пин'
+   * в случае успешной загрузки данных с сервера запускает функцию onLoad,
+   * иначе выводит сообщение об ошибке.
+   *
+   * @param  {Event} evt Событие Event.
+   */
+  var onMainPinEnterPress = function (evt) {
+    window.util.runOnEnter(evt, onMainPinMouseUp);
+  };
+
+  /**
+   * onLoad - создает и показывает элементы 'Метка объявления на карте'
    * и снимает блокировку с формы.
    *
-   * @param  {Array} data Загруженные с сервера данные (массив объявлений).
+   * @param  {Array.<Ad>} data Загруженные с сервера данные (массив объявлений).
    */
-  var showMap = function (data) {
-    // Создает массив объявлений (пока отображаю все)
-    // в дальшенйшем здесь сформирую массив заданной длины согласо ТЗ
-    // с использованием функции getRandomArray: var ads = window.util.getArray(data, 5);
-    var ads = data;
+  var onLoad = function (data) {
+    // Копирует полученные данные в массив объявлений
+    ads = data.slice();
 
-    // Создает массив элементов 'Метка объявления на карте'
-    var pins = window.pin.createPins(ads);
+    // Создает массив элементов 'Метка объявления' на основе массива объявлений.
+    // Объявления выбираются случайным образом.
+    pins = window.pin.createPins(window.util.mixArray(ads), PINS_AMOUNT_MAX);
 
-    // Добавляет DOM-элементы 'Метка объявления на карте' на страницу
+    // Добавляет DOM-элементы 'Метка объявления' на страницу
     renderPins(pins);
 
+    // Убирает 'затемнение' со страницы
     map.classList.remove('map--faded');
     form.classList.remove('notice__form--disabled');
 
     // Делает все поля формы доступными
     changeAccessibility(fieldsets);
 
-    // Назначает обработчик showPopups на элемент 'Карта',
-    // в котором расположены элементы 'Метка объявления на карте'
-    mapPins.addEventListener('click', function (evt) {
-      window.showCard.showPopups(evt, ads, pins);
-    });
-
     // Назначает обработчик onMainPinMouseDown на элемент 'Главный пин'
     mainPin.addEventListener('mousedown', onMainPinMouseDown);
+
+    // Удаляет обработчики с элемента 'Главный пин'
+    mainPin.removeEventListener('mouseup', onMainPinMouseUp);
+    mainPin.removeEventListener('keydown', onMainPinEnterPress);
   };
 
   /**
-   * onMainPinEnterPress - запускает функцию showMap при нажатии клавиши Enter
-   * на элементе 'Главный пин'.
+   * updateMap - Перерисовывает элементы 'Метка объявления' на основе
+   * отфильтрованных объявлений.
    *
-   * @param  {Event} evt Событие Event.
    */
-  var onMainPinEnterPress = function (evt) {
-    window.util.isEnterEvent(evt, onLoad);
+  var updateMap = function () {
+    // Закрывает открытый элемнет 'Карточка объявления'
+    window.showCard.closePopup();
+
+    // 'Перемешивает' массив объявлений случайным обазом, чтобы при выборе опции 'любой'
+    // отображались случайные элементы
+    ads = window.util.mixArray(ads);
+
+    // Фильтрует объявления и создает массив отфильтрованных объявлений
+    var filteredAds = window.filter.filterAds(ads);
+
+    // Удаляет существующие элементы 'Метка объявления'
+    pins.forEach(function (pin) {
+      pin.remove();
+    });
+
+    // Создает массив элементов 'Метка объявления' на основе массива отфильтрованных объявлений
+    pins = window.pin.createPins(filteredAds, PINS_AMOUNT_MAX);
+
+    // Добавляет DOM-элементы 'Метка объявления' на страницу
+    renderPins(pins);
   };
 
   /**
@@ -84,12 +135,15 @@
   };
 
   /**
-   * onMainPinMouseDown - Перемещает элемент по странице.
+   * onMainPinMouseDown - Перемещает элемент 'Главный пин' по странице.
    *
    * @param  {Event} evt Событие Event.
    */
   var onMainPinMouseDown = function (evt) {
     evt.preventDefault();
+
+    // Закрывает открытый элемнет 'Карточка объявления' (если есть)
+    window.showCard.closePopup();
 
     // Запоминает координаты стартовой точки, с которой началось перемещение
     var startCoords = {
@@ -149,33 +203,20 @@
   };
 
   /**
-   * successHandler - Запускает функцию showMap в случае успешной загрузки данных с сервера,
-   * иначе выводит сообщение об ошибке.
+   * renderPins - Добавляет DOM-элементы 'Метка объявления' в блок '.map__pins'.
    *
+   * @param  {Array} mapPins Массив DOM-элементов 'Метка объявления'.
    */
-  var onLoad = function () {
-    window.backend.load(showMap, window.popup.createErrorPopup);
-
-    // Удаляет обработчики с элемента 'Главный пин'
-    mainPin.removeEventListener('mouseup', onLoad);
-    mainPin.removeEventListener('keydown', onMainPinEnterPress);
-  };
-
-  /**
-   * renderPins - Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'.
-   *
-   * @param  {Array} pins Массив DOM-элементов 'Метка объявления на карте'.
-   */
-  var renderPins = function (pins) {
+  var renderPins = function (mapPins) {
     var fragment = document.createDocumentFragment();
 
-    // Размещает DOM-элементы 'Метка объявления на карте' из массива во фрагменте 'fragment'
-    for (var i = 0; i < pins.length; i++) {
-      fragment.appendChild(pins[i]);
+    // Размещает DOM-элементы 'Метка объявления' из массива во фрагменте 'fragment'
+    for (var i = 0; i < mapPins.length; i++) {
+      fragment.appendChild(mapPins[i]);
     }
 
-    // Добавляет DOM-элементы 'Метка объявления на карте' в блок '.map__pins'
-    mapPins.appendChild(fragment);
+    // Добавляет DOM-элементы 'Метка объявления' в блок '.map__pins'
+    pinsContainer.appendChild(fragment);
   };
 
   /**
@@ -187,15 +228,17 @@
     mainPin.style.top = mainPinTop;
   };
 
+
   // Делает все поля формы недоступными в момент открытия страницы
   changeAccessibility(fieldsets);
 
   // Добавляет обработчики на элемент 'Главный пин'
-  mainPin.addEventListener('mouseup', onLoad);
+  mainPin.addEventListener('mouseup', onMainPinMouseUp);
   mainPin.addEventListener('keydown', onMainPinEnterPress);
 
   window.map = {
     addressDefaultCoords: addressDefaultCoords,
-    setMainPinCoords: setMainPinCoords
+    setMainPinCoords: setMainPinCoords,
+    updateMap: updateMap
   };
 })();

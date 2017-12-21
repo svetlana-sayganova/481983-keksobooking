@@ -17,6 +17,7 @@
   var roomsSelect = form.querySelector('#room_number');
   var guestsSelect = form.querySelector('#capacity');
   var address = form.querySelector('#address');
+  var reset = form.querySelector('.form__reset');
 
   /**
    * syncValues - Устанавливает элементу element переданное значение value.
@@ -68,12 +69,12 @@
   };
 
   /**
-   * activateForm - Синхронизирует необходимые значия до взаимодействия с формой
+   * activateForm - Синхронизирует необходимые значения до взаимодействия с формой
    * и заносит в поле с адресом значение по умолчанию.
    *
    */
   var activateForm = function () {
-    // Синхронизирует необходимые значия до взаимодействия с формой
+    // Синхронизирует необходимые значения до взаимодействия с формой
     window.synchronizeFields(checkinSelect, checkoutSelect, times, times, syncValues);
     window.synchronizeFields(typeSelect, priceInput, types, minPrices, syncValueWithMin);
     window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
@@ -118,17 +119,24 @@
       if (!titleInput.validity.valid) {
         titleInput.style.outline = '2px solid red';
       }
-      if (titleInput.validity.tooShort) {
+      if (titleInput.validity.tooShort || (titleInput.value.length < 30 && titleInput.value.length !== 0)) {
         inputError = 'Заголовок должен состоять минимум из 30 символов. Сейчас символов: ' + titleInput.value.length;
       } else if (titleInput.validity.tooLong) {
         inputError = 'Заголовок не должен превышать 100 символов';
-      } else if (titleInput.validity.valueMissing) {
-        inputError = 'Поле обязательно для заполнения';
       } else {
         inputError = '';
         titleInput.style.outline = '';
       }
       titleInput.setCustomValidity(inputError);
+    });
+
+    // Выводит сообщение при незаполнении поля заголовка
+    titleInput.addEventListener('invalid', function () {
+      if (titleInput.validity.valueMissing) {
+        var inputError = 'Поле обязательно для заполнения';
+        titleInput.style.outline = '2px solid red';
+        titleInput.setCustomValidity(inputError);
+      }
     });
 
     // Выводит сообщение при неправильно заполненной цене
@@ -152,16 +160,25 @@
     });
 
     // Запускает функцию successHandler в случае успешной отправки данных на сервер,
-    // иначе выводит сообщение об ошибке.
+    // иначе выводит сообщение об ошибке
     form.addEventListener('submit', function (evt) {
       window.backend.save(new FormData(form), successHandler, window.popup.createErrorPopup);
       evt.preventDefault();
+    });
+
+    // При нажатии на кнопку 'Очистить' сбрасывает значения формы на значения по умолчанию
+    reset.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      form.reset();
+      activateForm();
+      // Устанавливает элемент 'Главный пин' на начальную позицию
+      window.map.setMainPinCoords();
     });
   };
 
   /**
    * successHandler - выводит сообщение об успешной отправке формы
-   * и сбрасывает значения формы на значения по умолчаню.
+   * и сбрасывает значения формы на значения по умолчанию.
    *
    */
   var successHandler = function () {

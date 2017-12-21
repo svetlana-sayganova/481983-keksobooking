@@ -4,13 +4,25 @@
   var ESC_KEYCODE = 27;
   var ENTER_KEYCODE = 13;
 
-  var isEscEvent = function (evt, action) {
+  /**
+   * runOnEnter - Если нажатая клавиша - Esc, то вызывает переданную функцию action.
+   *
+   * @param  {Event}    evt    Событие Event.
+   * @param  {function} action Выполняемая функция.
+   */
+  var runOnEsc = function (evt, action) {
     if (evt.keyCode === ESC_KEYCODE) {
       action();
     }
   };
 
-  var isEnterEvent = function (evt, action) {
+  /**
+   * runOnEnter - Если нажатая клавиша - Enter, то вызывает переданную функцию action.
+   *
+   * @param  {Event}    evt    Событие Event.
+   * @param  {function} action Выполняемая функция.
+   */
+  var runOnEnter = function (evt, action) {
     if (evt.keyCode === ENTER_KEYCODE) {
       action();
     }
@@ -47,28 +59,46 @@
   };
 
   /**
-   * getArray - возвращает массив заданной длины с неповторяющимися элементами
-   * на основе переданного массива.
+   * mixArray - создает массив на основе переданного со случайно расположенными
+   * элементами.
    *
    * @param  {Array}  array  Массив, на основе которого формируется новый массив.
-   * @param  {number} length Длина формируемого массива.
    * @return {Array}         Сформированный массив.
    */
-  var getArray = function (array, length) {
+  var mixArray = function (array) {
     var result = [];
     var clone = array.slice();
 
-    for (var i = 0; i < length; i++) {
-      var randomElement = getRandomElement(clone, true);
-      result.push(randomElement);
+    for (var i = 0; i < array.length; i++) {
+      var element;
+
+      element = getRandomElement(clone, true);
+      result.push(element);
     }
 
     return result;
   };
 
+  /**
+   * debounce - Откладывает выполнение функции action на время interval
+   * и предотвращает 'дребезг' при повтороном обращении к фукнции action раньше,
+   * чем через время interval.
+   *
+   * @param  {function} action   Выполняемая функция.
+   * @param  {number}   interval Время в мс.
+   */
+  var debounce = function (action, interval) {
+    var lastTimeout;
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(action, interval);
+  };
+
   window.util = {
-    isEscEvent: isEscEvent,
-    isEnterEvent: isEnterEvent,
-    getArray: getArray
+    runOnEsc: runOnEsc,
+    runOnEnter: runOnEnter,
+    mixArray: mixArray,
+    debounce: debounce
   };
 })();
