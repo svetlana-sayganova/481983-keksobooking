@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
   var types = ['bungalo', 'flat', 'house', 'palace'];
   var minPrices = ['0', '1000', '5000', '10000'];
@@ -18,6 +19,12 @@
   var guestsSelect = form.querySelector('#capacity');
   var address = form.querySelector('#address');
   var reset = form.querySelector('.form__reset');
+
+  var avatarChooser = form.querySelector('#avatar');
+  var photoChooser = form.querySelector('#images');
+  var avatarPreview = form.querySelector('.notice__preview').querySelector('img');
+  var photoPreview = form.querySelector('.form__photo-container');
+  var photos = [];
 
   /**
    * syncValues - Устанавливает элементу element переданное значение value.
@@ -80,6 +87,8 @@
     window.synchronizeFields(roomsSelect, guestsSelect, rooms, guests, syncGuestsWithRooms);
     // Заносит в поле с адресом значение по умолчанию
     setAddress(window.map.addressDefaultCoords.left, window.map.addressDefaultCoords.top);
+    // Разрешает мультизагрузку файлов
+    photoChooser.setAttribute('multiple', true);
   };
 
   /**
@@ -159,20 +168,69 @@
       priceInput.setCustomValidity(inputError);
     });
 
+    // Загружает аватор
+    avatarChooser.addEventListener('change', function () {
+      var file = avatarChooser.files[0];
+      var fileName = file.name.toLowerCase();
+
+      var matches = FILE_TYPES.some(function (it) {
+        return fileName.endsWith(it);
+      });
+
+      if (matches) {
+        var reader = new FileReader();
+
+        reader.addEventListener('load', function () {
+          avatarPreview.src = reader.result;
+        });
+
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Загружает фотографии объявления
+    photoChooser.addEventListener('change', function () {
+      Array.from(photoChooser.files).forEach(function (file) {
+        var fileName = file.name.toLowerCase();
+
+        var matches = FILE_TYPES.some(function (it) {
+          return fileName.endsWith(it);
+        });
+
+        if (matches) {
+          var reader = new FileReader();
+
+          reader.addEventListener('load', function () {
+            var photo = document.createElement('img');
+            photo.style.height = '100px';
+            photo.style.margin = '5px';
+            photo.src = reader.result;
+            photoPreview.appendChild(photo);
+            photos.push(photo);
+          });
+
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+
     // Запускает функцию successHandler в случае успешной отправки данных на сервер,
     // иначе выводит сообщение об ошибке
     form.addEventListener('submit', function (evt) {
-      window.backend.save(new FormData(form), successHandler, window.popup.createErrorPopup);
+      var formData = new FormData(form);
+      // Передает загруженные фотографии на сервер
+      formData.append('avatar', avatarChooser.files[0]);
+      Array.from(photoChooser.files).forEach(function (file) {
+        formData.append('photos[]', file);
+      });
+      window.backend.save(formData, successHandler, window.popup.createErrorPopup);
       evt.preventDefault();
     });
 
     // При нажатии на кнопку 'Очистить' сбрасывает значения формы на значения по умолчанию
     reset.addEventListener('click', function (evt) {
       evt.preventDefault();
-      form.reset();
-      activateForm();
-      // Устанавливает элемент 'Главный пин' на начальную позицию
-      window.map.setMainPinCoords();
+      successHandler();
     });
   };
 
@@ -184,6 +242,10 @@
   var successHandler = function () {
     window.popup.createSuccessPopup();
     form.reset();
+    avatarPreview.src = 'img/muffin.png';
+    photos.forEach(function (photo) {
+      photo.remove();
+    });
     activateForm();
     // Устанавливает элемент 'Главный пин' на начальную позицию
     window.map.setMainPinCoords();
