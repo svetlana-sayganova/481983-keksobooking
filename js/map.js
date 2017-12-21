@@ -16,15 +16,17 @@
   var mainPinSize = {
     width: 62,
     height: 62,
-    arrow: 22
+    arrow: 18
   };
+
+  var offsetY = mainPinSize.height / 2 + mainPinSize.arrow;
 
   var mainPinLeft = getComputedStyle(mainPin).left;
   var mainPinTop = getComputedStyle(mainPin).top;
 
   var addressDefaultCoords = {
     left: parseInt(mainPinLeft, 10),
-    top: parseInt(mainPinTop, 10) + mainPinSize.height / 2 + mainPinSize.arrow
+    top: parseInt(mainPinTop, 10) + offsetY
   };
 
   var form = document.querySelector('.notice__form');
@@ -86,9 +88,6 @@
 
     // Делает все поля формы доступными
     changeAccessibility(fieldsets);
-
-    // Назначает обработчик onMainPinMouseDown на элемент 'Главный пин'
-    mainPin.addEventListener('mousedown', onMainPinMouseDown);
 
     // Удаляет обработчики с элемента 'Главный пин'
     mainPin.removeEventListener('mouseup', onMainPinMouseUp);
@@ -174,18 +173,17 @@
       };
 
       // Перемещает элемент при условии вхождения в заданную область перемещения
-      // (намеренная коррекция по оси ординат для избежания размещения элемента над уровнем горизнота)
       if (currentCoords.x >= mainPinSize.width / 2 &&
         currentCoords.x <= map.clientWidth - mainPinSize.width / 2 &&
-        currentCoords.y - mainPinSize.height / 2 >= COORD_Y.MIN &&
-        currentCoords.y - mainPinSize.height / 2 <= COORD_Y.MAX) {
+        currentCoords.y + offsetY >= COORD_Y.MIN &&
+        currentCoords.y + offsetY <= COORD_Y.MAX) {
 
         mainPin.style.left = currentCoords.x + 'px';
         mainPin.style.top = currentCoords.y + 'px';
 
         // Заносит в поле с адресом текущее положение элемента 'Главный пин'
         // с поправкой на размер элемента
-        window.form.setAddress(currentCoords.x, currentCoords.y + mainPinSize.height / 2 + mainPinSize.arrow);
+        window.form.setAddress(currentCoords.x, currentCoords.y + offsetY);
       }
     };
 
@@ -234,6 +232,7 @@
 
   // Добавляет обработчики на элемент 'Главный пин'
   mainPin.addEventListener('mouseup', onMainPinMouseUp);
+  mainPin.addEventListener('mousedown', onMainPinMouseDown);
   mainPin.addEventListener('keydown', onMainPinEnterPress);
 
   window.map = {

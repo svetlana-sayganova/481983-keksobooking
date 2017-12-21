@@ -2,8 +2,8 @@
 
 (function () {
   var PIN_SIZE = {
-    X: 40,
-    Y: 40
+    HEIGHT: 40,
+    ARROW: 18
   };
 
   var mapPinTemplate = document.querySelector('template').content.querySelector('.map__pin');
@@ -19,8 +19,8 @@
     var mapPinElement = mapPinTemplate.cloneNode(true);
 
     mapPinElement.querySelector('img').src = ad.author.avatar;
-    mapPinElement.style.left = ad.location.x - PIN_SIZE.X / 2 + 'px';
-    mapPinElement.style.top = ad.location.y + PIN_SIZE.Y + 'px';
+    mapPinElement.style.left = ad.location.x + 'px';
+    mapPinElement.style.top = ad.location.y - PIN_SIZE.HEIGHT / 2 - PIN_SIZE.ARROW + 'px';
 
     // Вызывает функцию showPopup для показа соответсвующего элемента
     // 'Карточка объявления'
