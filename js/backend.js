@@ -2,6 +2,8 @@
 
 (function () {
   var URL = 'https://1510.dump.academy/keksobooking';
+  var SUCCESS_STATUS = 200;
+  var REQUEST_TIMEOUT = 10000;
 
   var ErrorStatus = {
     400: 'Неверный запрос',
@@ -22,7 +24,7 @@
     xhr.responseType = 'json';
 
     xhr.addEventListener('load', function () {
-      if (xhr.status === 200) {
+      if (xhr.status === SUCCESS_STATUS) {
         onLoad(xhr.response);
       } else {
         onError(ErrorStatus[xhr.status]);
@@ -37,7 +39,7 @@
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
 
-    xhr.timeout = 10000;
+    xhr.timeout = REQUEST_TIMEOUT;
 
     return xhr;
   };

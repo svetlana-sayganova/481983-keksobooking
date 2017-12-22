@@ -69,30 +69,30 @@
     var result = [];
     var clone = array.slice();
 
-    for (var i = 0; i < array.length; i++) {
-      var element;
-
+    array.forEach(function (element) {
       element = getRandomElement(clone, true);
       result.push(element);
-    }
+    });
 
     return result;
   };
 
   /**
-   * debounce - Откладывает выполнение функции action на время interval
-   * и предотвращает 'дребезг' при повтороном обращении к фукнции action раньше,
+   * debounce - Откладывает выполнение функции callback на время interval
+   * и предотвращает 'дребезг' при повтороном обращении к фукнции callback раньше,
    * чем через время interval.
    *
-   * @param  {function} action   Выполняемая функция.
+   * @param  {function} callback   Выполняемая функция.
    * @param  {number}   interval Время в мс.
    */
-  var debounce = function (action, interval) {
+  var debounce = function (callback, interval) {
     var lastTimeout;
+
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
-    lastTimeout = window.setTimeout(action, interval);
+
+    lastTimeout = window.setTimeout(callback, interval);
   };
 
   window.util = {
