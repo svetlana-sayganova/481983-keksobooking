@@ -3,7 +3,7 @@
 (function () {
   var PINS_AMOUNT_MAX = 5;
 
-  var coordY = {
+  var CoordY = {
     MIN: 100,
     MAX: 500
   };
@@ -175,8 +175,8 @@
       // Перемещает элемент при условии вхождения в заданную область перемещения
       if (currentCoords.x >= MainPinSize.WIDTH / 2 &&
         currentCoords.x <= map.clientWidth - MainPinSize.WIDTH / 2 &&
-        currentCoords.y + offsetY >= coordY.MIN &&
-        currentCoords.y + offsetY <= coordY.MAX) {
+        currentCoords.y + offsetY >= CoordY.MIN &&
+        currentCoords.y + offsetY <= CoordY.MAX) {
 
         mainPin.style.left = currentCoords.x + 'px';
         mainPin.style.top = currentCoords.y + 'px';

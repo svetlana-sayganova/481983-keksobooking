@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var Types = {
+  var types = {
     'flat': 'Квартира',
     'house': 'Дом',
     'bungalo': 'Бунгало'
@@ -30,7 +30,7 @@
     renderedCard.querySelector('h3').textContent = ad.offer.title;
     renderedCard.querySelector('small').textContent = ad.offer.address;
     renderedCard.querySelector('.popup__price').textContent = ad.offer.price + ' \u20BD/ночь';
-    renderedCard.querySelector('h4').textContent = Types[ad.offer.type];
+    renderedCard.querySelector('h4').textContent = types[ad.offer.type];
     cardCharacteristics[2].textContent = ad.offer.rooms + ' комнаты для ' + ad.offer.guests + ' гостей';
     cardCharacteristics[3].textContent = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
 

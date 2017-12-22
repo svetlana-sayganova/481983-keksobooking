@@ -3,14 +3,14 @@
 (function () {
   var DEBOUNCE_INTERVAL = 500;
 
-  var filtersContainer = document.querySelector('.map__filters-container');
-  var filters = filtersContainer.querySelectorAll('.map__filter');
-  var filteredAds = [];
-
   var PriceValues = {
     MIDDLE_START: 10000,
     MIDDLE_FINAL: 50000
   };
+
+  var filtersContainer = document.querySelector('.map__filters-container');
+  var filters = filtersContainer.querySelectorAll('.map__filter');
+  var filteredAds = [];
 
   /**
    * filterByType - Фильтрует объявления ads по типу жилья.
