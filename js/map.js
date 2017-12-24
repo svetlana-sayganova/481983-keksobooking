@@ -1,34 +1,33 @@
 'use strict';
 
 (function () {
-  var map = document.querySelector('.map');
+  var PINS_AMOUNT_MAX = 5;
 
-  var pinsContainer = map.querySelector('.map__pins');
-  var mainPin = map.querySelector('.map__pin--main');
-
-  var COORD_Y = {
+  var CoordY = {
     MIN: 100,
     MAX: 500
   };
 
-  var PINS_AMOUNT_MAX = 5;
-
-  var mainPinSize = {
-    width: 62,
-    height: 62,
-    arrow: 22
+  var MainPinSize = {
+    WIDTH: 62,
+    HEIGHT: 62,
+    ARROW: 18
   };
 
+  var map = document.querySelector('.map');
+  var pinsContainer = map.querySelector('.map__pins');
+  var mainPin = map.querySelector('.map__pin--main');
+  var form = document.querySelector('.notice__form');
+  var fieldsets = form.querySelectorAll('fieldset');
+
+  var offsetY = MainPinSize.HEIGHT / 2 + MainPinSize.ARROW;
   var mainPinLeft = getComputedStyle(mainPin).left;
   var mainPinTop = getComputedStyle(mainPin).top;
 
   var addressDefaultCoords = {
     left: parseInt(mainPinLeft, 10),
-    top: parseInt(mainPinTop, 10) + mainPinSize.height / 2 + mainPinSize.arrow
+    top: parseInt(mainPinTop, 10) + offsetY
   };
-
-  var form = document.querySelector('.notice__form');
-  var fieldsets = form.querySelectorAll('fieldset');
 
   var ads = [];
   var pins = [];
@@ -49,7 +48,7 @@
    *
    */
   var onMainPinMouseUp = function () {
-    window.backend.load(onLoad, window.popup.createErrorPopup);
+    window.backend.load(onLoad, window.popup.createError);
   };
 
   /**
@@ -75,7 +74,7 @@
 
     // Создает массив элементов 'Метка объявления' на основе массива объявлений.
     // Объявления выбираются случайным образом.
-    pins = window.pin.createPins(window.util.mixArray(ads), PINS_AMOUNT_MAX);
+    pins = window.pin.create(window.util.mixArray(ads), PINS_AMOUNT_MAX);
 
     // Добавляет DOM-элементы 'Метка объявления' на страницу
     renderPins(pins);
@@ -87,8 +86,8 @@
     // Делает все поля формы доступными
     changeAccessibility(fieldsets);
 
-    // Назначает обработчик onMainPinMouseDown на элемент 'Главный пин'
-    mainPin.addEventListener('mousedown', onMainPinMouseDown);
+    // Располагает элемент 'Главный пин' над элементами 'Метка объявления'
+    mainPin.style.zIndex = '50';
 
     // Удаляет обработчики с элемента 'Главный пин'
     mainPin.removeEventListener('mouseup', onMainPinMouseUp);
@@ -102,14 +101,14 @@
    */
   var updateMap = function () {
     // Закрывает открытый элемнет 'Карточка объявления'
-    window.showCard.closePopup();
+    window.card.close();
 
     // 'Перемешивает' массив объявлений случайным обазом, чтобы при выборе опции 'любой'
     // отображались случайные элементы
     ads = window.util.mixArray(ads);
 
     // Фильтрует объявления и создает массив отфильтрованных объявлений
-    var filteredAds = window.filter.filterAds(ads);
+    var filteredAds = window.filterAds(ads);
 
     // Удаляет существующие элементы 'Метка объявления'
     pins.forEach(function (pin) {
@@ -117,7 +116,7 @@
     });
 
     // Создает массив элементов 'Метка объявления' на основе массива отфильтрованных объявлений
-    pins = window.pin.createPins(filteredAds, PINS_AMOUNT_MAX);
+    pins = window.pin.create(filteredAds, PINS_AMOUNT_MAX);
 
     // Добавляет DOM-элементы 'Метка объявления' на страницу
     renderPins(pins);
@@ -129,9 +128,9 @@
    * @param  {NodeList} list DOM-коллекция.
    */
   var changeAccessibility = function (list) {
-    for (var i = 0; i < list.length; i++) {
-      list[i].disabled = !list[i].disabled;
-    }
+    Array.from(list).forEach(function (listElement) {
+      listElement.disabled = !listElement.disabled;
+    });
   };
 
   /**
@@ -143,7 +142,7 @@
     evt.preventDefault();
 
     // Закрывает открытый элемнет 'Карточка объявления' (если есть)
-    window.showCard.closePopup();
+    window.card.close();
 
     // Запоминает координаты стартовой точки, с которой началось перемещение
     var startCoords = {
@@ -174,18 +173,17 @@
       };
 
       // Перемещает элемент при условии вхождения в заданную область перемещения
-      // (намеренная коррекция по оси ординат для избежания размещения элемента над уровнем горизнота)
-      if (currentCoords.x >= mainPinSize.width / 2 &&
-        currentCoords.x <= map.clientWidth - mainPinSize.width / 2 &&
-        currentCoords.y - mainPinSize.height / 2 >= COORD_Y.MIN &&
-        currentCoords.y - mainPinSize.height / 2 <= COORD_Y.MAX) {
+      if (currentCoords.x >= MainPinSize.WIDTH / 2 &&
+        currentCoords.x <= map.clientWidth - MainPinSize.WIDTH / 2 &&
+        currentCoords.y + offsetY >= CoordY.MIN &&
+        currentCoords.y + offsetY <= CoordY.MAX) {
 
         mainPin.style.left = currentCoords.x + 'px';
         mainPin.style.top = currentCoords.y + 'px';
 
         // Заносит в поле с адресом текущее положение элемента 'Главный пин'
         // с поправкой на размер элемента
-        window.form.setAddress(currentCoords.x, currentCoords.y + mainPinSize.height / 2 + mainPinSize.arrow);
+        window.form.setAddress(currentCoords.x, currentCoords.y + offsetY);
       }
     };
 
@@ -210,10 +208,10 @@
   var renderPins = function (mapPins) {
     var fragment = document.createDocumentFragment();
 
-    // Размещает DOM-элементы 'Метка объявления' из массива во фрагменте 'fragment'
-    for (var i = 0; i < mapPins.length; i++) {
-      fragment.appendChild(mapPins[i]);
-    }
+    // Размещает DOM-элементы 'Метка объявления' из массива mapPins во фрагменте 'fragment'
+    mapPins.forEach(function (pin) {
+      fragment.appendChild(pin);
+    });
 
     // Добавляет DOM-элементы 'Метка объявления' в блок '.map__pins'
     pinsContainer.appendChild(fragment);
@@ -234,11 +232,12 @@
 
   // Добавляет обработчики на элемент 'Главный пин'
   mainPin.addEventListener('mouseup', onMainPinMouseUp);
+  mainPin.addEventListener('mousedown', onMainPinMouseDown);
   mainPin.addEventListener('keydown', onMainPinEnterPress);
 
   window.map = {
     addressDefaultCoords: addressDefaultCoords,
     setMainPinCoords: setMainPinCoords,
-    updateMap: updateMap
+    update: updateMap
   };
 })();

@@ -1,9 +1,9 @@
 'use strict';
 
 (function () {
-  var PIN_SIZE = {
-    X: 40,
-    Y: 40
+  var PinSize = {
+    HEIGHT: 40,
+    ARROW: 18
   };
 
   var mapPinTemplate = document.querySelector('template').content.querySelector('.map__pin');
@@ -16,32 +16,33 @@
    * @return {Node}             DOM-элемент 'Метка объявления' с заданными свойствами.
    */
   var renderPin = function (ad) {
-    var mapPinElement = mapPinTemplate.cloneNode(true);
+    var pin = mapPinTemplate.cloneNode(true);
 
-    mapPinElement.querySelector('img').src = ad.author.avatar;
-    mapPinElement.style.left = ad.location.x - PIN_SIZE.X / 2 + 'px';
-    mapPinElement.style.top = ad.location.y + PIN_SIZE.Y + 'px';
+    pin.querySelector('img').src = ad.author.avatar;
+    pin.style.left = ad.location.x + 'px';
+    pin.style.top = ad.location.y - PinSize.HEIGHT / 2 - PinSize.ARROW + 'px';
 
     // Вызывает функцию showPopup для показа соответсвующего элемента
     // 'Карточка объявления'
-    mapPinElement.addEventListener('click', function (evt) {
-      window.showCard.showPopup(evt, ad);
+    pin.addEventListener('click', function (evt) {
+      window.card.show(evt, ad);
     });
 
-    return mapPinElement;
+    return pin;
   };
 
   /**
    * createPins - Создает массив элементов 'Метка объявления'. Количество элементов
    * не превышает значения pinsAmountMax.
    *
-   * @param  {Array.<Ad>} ads Массив объектов Ad.
-   * @param  {number} pinsAmountMax Максимальное количество создаваемых элементов.
-   * @return {Array.<Node>}   Массив элементов 'Метка объявления'.
+   * @param  {Array.<Ad>} ads           Массив объектов Ad.
+   * @param  {number}     pinsAmountMax Максимальное количество создаваемых элементов.
+   * @return {Array.<Node>}             Массив элементов 'Метка объявления'.
    */
   var createPins = function (ads, pinsAmountMax) {
     var pins = [];
     var pinsAmount = (ads.length < pinsAmountMax) ? ads.length : pinsAmountMax;
+
     for (var i = 0; i < pinsAmount; i++) {
       pins.push(renderPin(ads[i]));
     }
@@ -50,6 +51,6 @@
   };
 
   window.pin = {
-    createPins: createPins
+    create: createPins
   };
 })();
