@@ -85,7 +85,7 @@
       // ищет кнопку закрытия элеманта 'Карточка объявления'
       // и назначает ему обработчик closeCard (закрытие элемента по клику)
       cardClose = map.querySelector('.popup__close');
-      cardClose.addEventListener('click', closeCard);
+      cardClose.addEventListener('click', onCardCloseClick);
 
       // назначает обработчик onCardEscPress (закрытие элемента по нажатию на клавишу Esc)
       document.addEventListener('keydown', onCardEscPress);
@@ -97,7 +97,7 @@
    * и скрывает соответствущий ему элемент 'Карточка объявления'.
    *
    */
-  var closeCard = function () {
+  var onCardCloseClick = function () {
     if (card) {
       currentTarget.classList.remove('map__pin--active');
       card.remove();
@@ -112,11 +112,11 @@
    * @param  {Event} evt Событие Event.
    */
   var onCardEscPress = function (evt) {
-    window.util.runOnEsc(evt, closeCard);
+    window.util.runOnEsc(evt, onCardCloseClick);
   };
 
   window.card = {
     show: showCard,
-    close: closeCard
+    close: onCardCloseClick
   };
 })();
