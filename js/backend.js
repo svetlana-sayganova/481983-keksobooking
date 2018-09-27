@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var URL = 'https://1510.dump.academy/keksobooking';
+  var URL = 'https://js.dump.academy/keksobooking';
   var SUCCESS_STATUS = 200;
   var REQUEST_TIMEOUT = 10000;
 
